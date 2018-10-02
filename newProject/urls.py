@@ -22,6 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('hello/', hello),
     path('test/', test),
+    path('home/', show_all_data, name ="show_all"),
+    path('edit/<int:id>/', EditBlogView.as_view(), name="edit_blog"),
     path('add/', Blog.as_view()),
-    path('home/', show_all_data),
 ]

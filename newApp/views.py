@@ -17,10 +17,22 @@ def test(request):
 
 def show_all_data(request):
     try:
-        blog = BlogModel.objects.all()
-    expect Exception:
+        blogs = BlogModel.objects.all()
+    except Exception:
         return HttpResponse("Not found")
-    return render(request, "show.html", {"persons": persons})
+    return render(request, "show.html", {"blogs": blogs})
+
+class EditBlogView(View):
+    def get(self, request, id):
+        b = get_object_or_404(BlogModel, id=id)
+        return render(request, "edit.html", {"blog": b})
+
+    def post(self, request, id):
+        b = get_object_or_404(BlogModel, id=id)
+        # b.title = request.POST["title"]
+        # b.body = request.POST["body"]
+        b.save()
+        return render(request, "show.html", {"blogs": blogs})
 
 class Blog(View):
     def get(self, request):

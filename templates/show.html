@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  {% for b in blogs %}
+      <h1>{{ b.title }}</h1>
+      <p>Text: {{ b.body }}</p>
+      {# <a href="{% url 'edit_blog' p.id %}">Edit contact</a> #}
+      <br>
+  {% endfor %}
+{% endblock %}
