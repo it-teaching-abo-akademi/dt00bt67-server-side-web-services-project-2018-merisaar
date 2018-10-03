@@ -6,14 +6,12 @@ from django.views import View
 from django.views import View
 from .forms import BlogForm
 from .models import BlogModel
+from django.contrib import messages
 import datetime
 # Create your views here.
 
 def hello(request):
     return HttpResponse("Hello world!")
-
-def test(request):
-    return HttpResponse("Testing testing!")
 
 def show_all_data(request):
     try:
@@ -28,11 +26,26 @@ class EditBlogView(View):
         return render(request, "edit.html", {"blog": b})
 
     def post(self, request, id):
-        b = get_object_or_404(BlogModel, id=id)
-        # b.title = request.POST["title"]
-        # b.body = request.POST["body"]
-        b.save()
-        return render(request, "show.html", {"blogs": blogs})
+        # This will return an array of one blog or none
+        blog = BlogModel.objects.get(id=id)
+        form = BlogForm(request.POST, instance = blog)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.INFO, "Blog updated")
+            return HttpResponseRedirect(reverse("home"))
+        return HttpResponse('Pieleen meni')
+        # blogs = BlogModel.objects.filter(id=id)
+        # if len(blogs) > 0:
+        #     blog = blogs[0]
+        # else:
+        #     messages.add_message(request, messages.INFO, "Invalid blog id")
+        #     return HttpResponseRedirect(reverse("home"))
+        # body = request.POST.get("body")
+        # title = request.POST.get("title")
+        # blog.title = title
+        # blog.body = body
+        # blog.save()
+
 
 class Blog(View):
     def get(self, request):
@@ -45,7 +58,6 @@ class Blog(View):
             cd = form.cleaned_data
             blog_t = cd['title']
             blog_b = cd['body']
-            print(blog_t)
             blog = BlogModel(title=blog_t, timestamp=datetime.datetime.now(), body=blog_b)
             blog.save()
-            return HttpResponse('Added')
+            return HttpResponse('Added ')
