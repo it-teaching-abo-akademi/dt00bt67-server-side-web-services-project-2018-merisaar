@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Edit your blog{% endblock %}
 {% block content %}
-  <h1>{{ blog.id }}</h1>
+  <h1>Edit blog:</h1>
    <form action="{% url 'edit_blog' blog.id %}" method="post">
        {% csrf_token %}
        New title: <input type="text" name="title" id="title" value="{{ blog.title }}">

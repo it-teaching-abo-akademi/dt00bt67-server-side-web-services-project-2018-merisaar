@@ -8,3 +8,11 @@ class BlogModel(models.Model):
     body = models.TextField()
     def __str__(self):
         return self.title
+
+class User(models.Model):
+    username = models.CharField(max_length=150)
+    email = models.EmailField()
+    password = models.CharField(max_length=150)
+    timestamp = models.DateTimeField()
+    def __str__(self):
+        return self.title

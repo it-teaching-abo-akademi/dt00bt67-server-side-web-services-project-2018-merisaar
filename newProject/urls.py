@@ -24,4 +24,6 @@ urlpatterns = [
     path('home/', show_all_data, name ="home"),
     path('edit/<int:id>/', EditBlogView.as_view(), name="edit_blog"),
     path('add/', Blog.as_view()),
+    path('saveBlog/', saveBlog, name = "save_form"),
+    path('register/', registerUser.as_view(),  name = "register_user"),
 ]
