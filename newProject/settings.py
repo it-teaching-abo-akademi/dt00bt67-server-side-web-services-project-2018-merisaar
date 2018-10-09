@@ -51,7 +51,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'newProject.urls'
-LOGIN_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'user_view'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

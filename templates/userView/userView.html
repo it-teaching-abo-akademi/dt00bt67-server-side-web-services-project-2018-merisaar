@@ -3,15 +3,14 @@
 {% block content %}
 <h1>Edit:</h1>
   <div>Username: {{user.username}}</div>
- <form action="{% url 'modify_user' %}" method="post">
+ <form action="{% url 'user_view' %}" method="post">
      {% csrf_token %}
      Email: <input type="text" name="email" value="{{ user.email }}">
      <input type="submit" value="Change email">
  </form>
-
+</br>
  <form action="{% url 'change_password' %}" method="post">
      {% csrf_token %}
-     Password:<Input type="password"name="password"></Input>
      <input type="submit" value="Change password">
  </form>
 {% endblock %}

@@ -3,7 +3,6 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
-from django.views import View
 from .forms import BlogForm, CopyOfForm, UserCreationForm
 from .models import BlogModel
 from django.contrib import messages
@@ -50,7 +49,7 @@ class EditUser(View):
     def get(self, request):
         if request.user.is_authenticated:
             user = request.user
-            return render(request, "userView.html", {"user": user})
+            return render(request, "userView/userView.html", {"user": user})
         else:
             return HttpResponse("No logged in user")
 
@@ -67,17 +66,17 @@ class EditUser(View):
 
 def changePassword(request):
     if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
+        form = PasswordChangeForm(data= request.POST, user= request.user)
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)
             messages.success(request, 'Your password was successfully updated!')
-            return HttpResponseRedirect(reverse("home"))
-        # else:
-        #     messages.error(request, 'Please correct the error below.')
+            return redirect('change_password')
+        else:
+            messages.error(request, 'Please correct the error below.')
     else:
         form = PasswordChangeForm(request.user)
-    return render(request, 'userView.html', {'form': form })
+    return render(request, 'userView/change_password.html', {'form': form })
 
 def createAuction(request):
     if request.user.is_authenticated:
@@ -119,7 +118,7 @@ def saveBlog(request):
 class registerUser(View):
     def get(self, request):
         form= UserCreationForm()
-        return render(request, "registration.html", {"form": form})
+        return render(request, "registration/registration.html", {"form": form})
 
     def post(self, request):
         form = UserCreationForm(request.POST)
