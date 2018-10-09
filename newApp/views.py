@@ -4,23 +4,23 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
 from django.views import View
-from .forms import BlogForm
-from .models import BlogModel
+from .forms import BlogForm, CopyOfForm, UserCreationForm
+from .models import BlogModel, User
+from django.contrib import messages
 import datetime
 # Create your views here.
 
 def hello(request):
     return HttpResponse("Hello world!")
 
-def test(request):
-    return HttpResponse("Testing testing!")
 
 def show_all_data(request):
     try:
-        blogs = BlogModel.objects.all()
+        blogs = BlogModel.objects.order_by('-timestamp')
     except Exception:
-        return HttpResponse("Not found")
+        return HttpResponse("Lopeta heti paikalla")
     return render(request, "show.html", {"blogs": blogs})
+
 
 class EditBlogView(View):
     def get(self, request, id):
@@ -28,11 +28,15 @@ class EditBlogView(View):
         return render(request, "edit.html", {"blog": b})
 
     def post(self, request, id):
-        b = get_object_or_404(BlogModel, id=id)
-        # b.title = request.POST["title"]
-        # b.body = request.POST["body"]
-        b.save()
-        return render(request, "show.html", {"blogs": blogs})
+        # This will return an array of one blog or none
+        blog = BlogModel.objects.get(id=id)
+        form = BlogForm(request.POST, instance = blog)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.INFO, "Blog updated")
+            return HttpResponseRedirect(reverse("home"))
+        return HttpResponse('Error')
+
 
 class Blog(View):
     def get(self, request):
@@ -45,7 +49,41 @@ class Blog(View):
             cd = form.cleaned_data
             blog_t = cd['title']
             blog_b = cd['body']
-            print(blog_t)
-            blog = BlogModel(title=blog_t, timestamp=datetime.datetime.now(), body=blog_b)
-            blog.save()
-            return HttpResponse('Added')
+            form = CopyOfForm({"c_title": blog_t, "c_body": blog_b})
+            return render(request, "confirmation.html", {"form": form})
+            #Sessions:
+            # request.session('blog_t') = blog_t
+            # request.session('blog_b') = blog_b
+
+
+def saveBlog(request):
+    option = request.POST.get('option', 'no')
+    if option == 'yes':
+        title = request.POST.get('c_title', '')
+        body = request.POST.get('c_body', '')
+        blog = BlogModel(title=title, timestamp=datetime.datetime.now(), body=body)
+        blog.save()
+        return HttpResponseRedirect(reverse("home"))
+    else:
+        messages.add_message(request, messages.INFO, "Whatever")
+        return HttpResponseRedirect(reverse("save_form"))
+
+
+class registerUser(View):
+    def get(self, request):
+        form= UserCreationForm()
+        return render(request, "registration.html", {"form": form})
+
+    def post(self, request):
+        form = UserCreationForm(request.POST)
+        if(form.is_valid()):
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            password = form.clean_password2['password']
+            new_user = User(username= username,email= email, password = password, timestamp = datetime.datetime.now())
+            new_user.save()
+            messages.add_message(request, messages.INFO, "New user created")
+            return HttpResponseRedirect(reverse("home"))
+        else:
+            form = UserCreationForm(request.POST)
+            return render(request, "registration.html", {"form": form})
