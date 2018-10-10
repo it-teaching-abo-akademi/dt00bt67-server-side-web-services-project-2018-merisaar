@@ -51,7 +51,7 @@ class EditUser(View):
             user = request.user
             return render(request, "userView/userView.html", {"user": user})
         else:
-            return HttpResponse("No logged in user")
+            return HttpResponseRedirect(reverse("login"))
 
     def post(self, request):
         form = UserCreationForm(request.POST)
