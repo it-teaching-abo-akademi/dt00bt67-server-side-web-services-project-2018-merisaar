@@ -32,12 +32,9 @@ urlpatterns = [
     path('add/', Blog.as_view()),
     path('saveBlog/', saveBlog, name = "save_form"),
     path('register/', registerUser.as_view(),  name = "register_user"),
-<<<<<<< HEAD
     path('user/', EditUser.as_view(), name = "user_view"),
     path('user/password/', changePassword, name = "change_password"),
     path('user/email/', changeEmail, name = "change_email"),
     path('home/action', createAuction, name = "add_action"),
+
     ]
-=======
-]
->>>>>>> 9de138323cfce2e4640dc640cbdd4acc0774de2f
