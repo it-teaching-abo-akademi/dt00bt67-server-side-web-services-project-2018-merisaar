@@ -3,8 +3,14 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
+<<<<<<< HEAD
 from .forms import BlogForm, CopyOfForm, UserCreationForm
 from .models import BlogModel
+=======
+from django.views import View
+from .forms import BlogForm, CopyOfForm, UserCreationForm
+from .models import BlogModel, User
+>>>>>>> 9de138323cfce2e4640dc640cbdd4acc0774de2f
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
@@ -18,6 +24,7 @@ def hello(request):
 
 def show_all_data(request):
     try:
+<<<<<<< HEAD
         auctions = Auction.objects.order_by('-timestamp')
     except Exception:
         return HttpResponse("Lopeta heti paikalla")
@@ -36,6 +43,13 @@ def show_all_data(request):
 #         return render(request, "userView.html", {"user": user})
 #     else:
 #         return HttpResponse("No logged in user")
+=======
+        blogs = BlogModel.objects.order_by('-timestamp')
+    except Exception:
+        return HttpResponse("Lopeta heti paikalla")
+    return render(request, "show.html", {"blogs": blogs})
+>>>>>>> 9de138323cfce2e4640dc640cbdd4acc0774de2f
+
 
 class EditBlogView(View):
     def get(self, request, id):
@@ -51,6 +65,7 @@ class EditBlogView(View):
             messages.add_message(request, messages.INFO, "Blog updated")
             return HttpResponseRedirect(reverse("home"))
         return HttpResponse('Error')
+<<<<<<< HEAD
 
 class EditUser(View):
     def get(self, request):
@@ -96,6 +111,8 @@ def changeEmail(request):
         #     messages.error(request, 'Please correct the error below.')
     else:
         return render(request, 'userView/userView.html', {'user': request.user })
+=======
+>>>>>>> 9de138323cfce2e4640dc640cbdd4acc0774de2f
 
 def createAuction(request):
     if request.user.is_authenticated:
@@ -137,19 +154,35 @@ def saveBlog(request):
 class registerUser(View):
     def get(self, request):
         form= UserCreationForm()
+<<<<<<< HEAD
         return render(request, "registration/registration.html", {"form": form})
+=======
+        return render(request, "registration.html", {"form": form})
+>>>>>>> 9de138323cfce2e4640dc640cbdd4acc0774de2f
 
     def post(self, request):
         form = UserCreationForm(request.POST)
         if(form.is_valid()):
+<<<<<<< HEAD
             form.save()
             # username = form.cleaned_data['username']
             # email = form.cleaned_data['email']
             # password = form.clean_password2['password']
             # new_user = User(username= username,email= email, password = password, timestamp = datetime.datetime.now())
             # new_user.save()
+=======
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            password = form.clean_password2['password']
+            new_user = User(username= username,email= email, password = password, timestamp = datetime.datetime.now())
+            new_user.save()
+>>>>>>> 9de138323cfce2e4640dc640cbdd4acc0774de2f
             messages.add_message(request, messages.INFO, "New user created")
             return HttpResponseRedirect(reverse("home"))
         else:
             form = UserCreationForm(request.POST)
+<<<<<<< HEAD
             return render(request, "registration/registration.html", {"form": form})
+=======
+            return render(request, "registration.html", {"form": form})
+>>>>>>> 9de138323cfce2e4640dc640cbdd4acc0774de2f

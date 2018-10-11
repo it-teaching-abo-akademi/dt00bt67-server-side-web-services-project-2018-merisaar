@@ -1,4 +1,5 @@
 from django import forms
+<<<<<<< HEAD
 from .models import BlogModel
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
@@ -17,6 +18,11 @@ class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = CustomUser
         fields = ('username', 'email')
+=======
+from .models import BlogModel, User
+from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
+>>>>>>> 9de138323cfce2e4640dc640cbdd4acc0774de2f
 
 class BlogForm(forms.ModelForm):
     class Meta:
@@ -50,7 +56,11 @@ class UserCreationForm(forms.Form):
         return email
 
     def clean_password2(self):
+<<<<<<< HEAD
         password = self.cleaned_data.get('password')
+=======
+        password = self.cleaned_data.get('password1')
+>>>>>>> 9de138323cfce2e4640dc640cbdd4acc0774de2f
         password2 = self.cleaned_data.get('password2')
         if password and password2 and password != password2:
             raise ValidationError("Passwords don't match")
@@ -60,6 +70,10 @@ class UserCreationForm(forms.Form):
         user = User.objects.create_user(
             self.cleaned_data['username'],
             self.cleaned_data['email'],
+<<<<<<< HEAD
             self.cleaned_data['password']
+=======
+            self.cleaned_data['password1']
+>>>>>>> 9de138323cfce2e4640dc640cbdd4acc0774de2f
         )
         return user

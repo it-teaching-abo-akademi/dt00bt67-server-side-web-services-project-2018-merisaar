@@ -16,6 +16,7 @@ class BlogModel(models.Model):
     def __str__(self):
         return self.title
 
+<<<<<<< HEAD
 class Auction(models.Model):
     seller = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE
@@ -49,3 +50,12 @@ class Auction(models.Model):
 #         return self.alias
 #     def get_long_name(self):
 #         return "{} @{}".format(self.alias, self.username)
+=======
+class User(models.Model):
+    username = models.CharField(max_length=150)
+    email = models.EmailField()
+    password = models.CharField(max_length=150)
+    timestamp = models.DateTimeField()
+    def __str__(self):
+        return self.title
+>>>>>>> 9de138323cfce2e4640dc640cbdd4acc0774de2f
