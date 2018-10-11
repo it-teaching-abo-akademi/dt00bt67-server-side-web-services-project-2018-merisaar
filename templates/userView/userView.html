@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Edit:</h1>
   <div>Username: {{user.username}}</div>
- <form action="{% url 'user_view' %}" method="post">
+ <form action="{% url 'change_email' %}" method="post">
      {% csrf_token %}
      Email: <input type="text" name="email" value="{{ user.email }}">
      <input type="submit" value="Change email">

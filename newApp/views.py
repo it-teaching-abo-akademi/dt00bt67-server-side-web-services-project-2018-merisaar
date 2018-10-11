@@ -18,10 +18,17 @@ def hello(request):
 
 def show_all_data(request):
     try:
-        blogs = BlogModel.objects.order_by('-timestamp')
+        auctions = Auction.objects.order_by('-timestamp')
     except Exception:
         return HttpResponse("Lopeta heti paikalla")
-    return render(request, "show.html", {"blogs": blogs})
+    return render(request, "homePage/show.html", {"auctions": auctions})
+
+# def show_all_data(request):
+#     try:
+#         blogs = BlogModel.objects.order_by('-timestamp')
+#     except Exception:
+#         return HttpResponse("Lopeta heti paikalla")
+#     return render(request, "show.html", {"blogs": blogs})
 
 # def modify_registration(request):
 #     if request.user.is_authenticated:
@@ -78,6 +85,18 @@ def changePassword(request):
         form = PasswordChangeForm(request.user)
     return render(request, 'userView/change_password.html', {'form': form })
 
+def changeEmail(request):
+    if request.method == 'POST':
+        user =User.objects.filter(username=request.user.username)
+        user.update(email=request.POST['email'])
+        update_session_auth_hash(request, user)
+        messages.success(request, 'Your email was successfully updated!')
+        return redirect('user_view')
+        # else:
+        #     messages.error(request, 'Please correct the error below.')
+    else:
+        return render(request, 'userView/userView.html', {'user': request.user })
+
 def createAuction(request):
     if request.user.is_authenticated:
         return HttpResponse('In progress.')
@@ -133,4 +152,4 @@ class registerUser(View):
             return HttpResponseRedirect(reverse("home"))
         else:
             form = UserCreationForm(request.POST)
-            return render(request, "registration.html", {"form": form})
+            return render(request, "registration/registration.html", {"form": form})
