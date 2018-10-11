@@ -61,7 +61,8 @@ class EditUser(View):
     def get(self, request):
         if request.user.is_authenticated:
             user = request.user
-            return render(request, "userView/userView.html", {"user": user})
+            auctions = Auction.objects.filter(seller = user)
+            return render(request, "userView/userView.html", {"user": user, "auctions": auctions})
         else:
             return HttpResponseRedirect(reverse("login"))
 
@@ -134,7 +135,9 @@ class AddAuction(View):
     def post(self, request):
         form = CreateAuctionForm(request.POST)
         if(form.is_valid()):
-            form.save()
+            userAuction = form.save(commit = False)
+            userAuction.seller = request.user
+            userAuction.save()
             messages.add_message(request, messages.INFO, "New user created")
             return HttpResponseRedirect(reverse("home"))
         else:

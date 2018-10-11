@@ -1,6 +1,8 @@
 {% extends 'userView/base.html' %}
 
 {% block content %}
+<div><a href="{% url 'logout' %}">Logout</a></div>
+<div><a href="{% url 'home' %}">Home</a></div>
 <h1>Edit:</h1>
   <div>Username: {{user.username}}</div>
  <form action="{% url 'change_email' %}" method="post">
@@ -14,5 +16,13 @@
      <input type="submit" value="Change password">
  </form>
 </br>
- <div><a href="{% url 'logout' %}">Logout</a></div>
+<h1>Auctions:</h1>
+ {% for auction in auctions %}
+ <h1>{{ auction.auctionTitle }}</h1>
+     <p>Description: {{ auction.description }}</p>
+     <p>Closing: {{ auction.deadline }}</p>
+     {# <a href="{% url 'edit_blog' p.id %}">Edit contact</a> #}
+     <br>
+ {% endfor %}
+
 {% endblock %}

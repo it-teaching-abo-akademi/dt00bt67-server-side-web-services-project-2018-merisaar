@@ -4,6 +4,7 @@
   {% for auction in auctions %}
   <h1>{{ auction.auctionTitle }}</h1>
       <p>Text: {{ auction.description }}</p>
+      <p>Auction closes: {{ auction.deadline }}</p>
       {# <a href="{% url 'edit_blog' p.id %}">Edit contact</a> #}
       <br>
   {% endfor %}

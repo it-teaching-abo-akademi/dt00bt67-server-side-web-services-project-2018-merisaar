@@ -7,6 +7,14 @@
     p {margin: 1em 0}
 </style>
 <body>
+  
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 <h1>Actions</h1>
 
     <br>
@@ -25,14 +33,6 @@
 
 
     <br> <br>
-
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
 
 {% block content %}
 {% endblock %}
