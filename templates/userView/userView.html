@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'userView/base.html' %}
 
 {% block content %}
 <h1>Edit:</h1>
@@ -13,4 +13,6 @@
      {% csrf_token %}
      <input type="submit" value="Change password">
  </form>
+</br>
+ <div><a href="{% url 'logout' %}">Logout</a></div>
 {% endblock %}

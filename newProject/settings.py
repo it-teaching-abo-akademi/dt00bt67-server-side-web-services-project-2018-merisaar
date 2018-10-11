@@ -119,5 +119,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'newApp.CustomUser'
-LOGIN_REDIRECT_URL = 'user_view'
+LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
+from datetime import timedelta, datetime
 
 # Create your models here.
 class CustomUser(AbstractUser):
@@ -24,7 +25,7 @@ class Auction(models.Model):
     auctionTitle = models.CharField(max_length=150)
     description = models.TextField()
     minimumPrice = models.DecimalField(max_digits=5, decimal_places=2)
-    deadline = models.DateTimeField(blank=True)
+    deadline = models.DateTimeField(default=datetime.now() + timedelta(hours=72))
     def __str__(self):
         return self.title
 

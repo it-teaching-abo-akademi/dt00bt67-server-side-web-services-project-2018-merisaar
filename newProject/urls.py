@@ -35,6 +35,6 @@ urlpatterns = [
     path('user/', EditUser.as_view(), name = "user_view"),
     path('user/password/', changePassword, name = "change_password"),
     path('user/email/', changeEmail, name = "change_email"),
-    path('home/action', createAuction, name = "add_action"),
+    path('home/auction', AddAuction.as_view() , name = "add_auction"),
 
     ]

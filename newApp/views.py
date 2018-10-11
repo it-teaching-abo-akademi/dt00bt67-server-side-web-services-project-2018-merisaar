@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
 from django.contrib.auth import get_user_model
-from .forms import BlogForm, CopyOfForm, UserCreationForm
+from .forms import BlogForm, CopyOfForm, UserCreationForm, CreateAuctionForm
 from .models import BlogModel, Auction
 
 from django.contrib import messages
@@ -83,7 +83,7 @@ def changePassword(request):
             user = form.save()
             update_session_auth_hash(request, user)
             messages.success(request, 'Your password was successfully updated!')
-            return redirect('change_password')
+            return redirect('home')
         else:
             messages.error(request, 'Please correct the error below.')
     else:
@@ -92,7 +92,7 @@ def changePassword(request):
 
 def changeEmail(request):
     if request.method == 'POST':
-        user =User.objects.filter(username=request.user.username)
+        user =get_user_model().objects.filter(username=request.user.username)
         user.update(email=request.POST['email'])
         update_session_auth_hash(request, user)
         messages.success(request, 'Your email was successfully updated!')
@@ -100,7 +100,7 @@ def changeEmail(request):
         # else:
         #     messages.error(request, 'Please correct the error below.')
     else:
-        return render(request, 'userView/userView.html', {'user': request.user })
+        return render(request, 'userView/base.html', {'user': request.user })
 
 
 def createAuction(request):
@@ -125,6 +125,22 @@ class Blog(View):
             #Sessions:
             # request.session('blog_t') = blog_t
             # request.session('blog_b') = blog_b
+
+class AddAuction(View):
+    def get(self, request):
+        form = CreateAuctionForm()
+        return render(request, "auctionForm.html", {"form": form})
+
+    def post(self, request):
+        form = CreateAuctionForm(request.POST)
+        if(form.is_valid()):
+            form.save()
+            messages.add_message(request, messages.INFO, "New user created")
+            return HttpResponseRedirect(reverse("home"))
+        else:
+            form = UserCreationForm(request.POST)
+            return render(request, "auctionForm.html", {"form": form})
+
 
 
 def saveBlog(request):

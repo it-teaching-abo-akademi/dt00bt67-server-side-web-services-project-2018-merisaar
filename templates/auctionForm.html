@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+<!-- <form action="/add/" method="post">
+<label for="your_name">Something: </label>
+<input id="title" type="title" name="your_name" value="{{ current_title }}">
+<input id="body" type="body" name="your_name" value="{{ current_body }}">
+<input type="submit" value="OK">
+</form> -->
+
+{% block content %}
+<form action="{% url 'add_auction' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit">
+</form>
+{% endblock %}
