@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Edit your blog{% endblock %}
+{% block content %}
+  <h1>Edit blog:</h1>
+   <form action="{% url 'edit_blog' blog.id %}" method="post">
+       {% csrf_token %}
+       New title: <input type="text" name="title" id="title" value="{{ blog.title }}">
+       New body:<textarea name="body" cols="50" rows="20"> {{ blog.body }}</textarea>
+       <input type="submit" value="Save changes">
+   </form>
+{% endblock %}
