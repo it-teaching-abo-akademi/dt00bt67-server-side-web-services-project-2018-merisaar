@@ -1,0 +1,40 @@
+{% load i18n %}
+<html>
+<style type= "text/css">
+    body {padding: 0 5em; margin:0}
+    h1 {padding: 1em 1em;}
+    h2 {border-top: 1px dotted #fff; margin-top: 2em}
+    p {margin: 1em 0}
+</style>
+<body>
+<h1>Actions</h1>
+
+    <br>
+    <b><a href="{% url 'home' %}">Home</a> </b>
+
+
+    {% if user.is_authenticated %}
+        <p>Logged: {{ user.username }}</p>
+        <a href="{% url 'add_action' %}">Add blog</a>
+        <a href="{% url 'logout' %}">Logout</a>
+    {% else %}
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'register_user' %}">Create new user</a>
+    {% endif %}
+
+
+    <br> <br>
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+{% block content %}
+{% endblock %}
+
+</body>
+</html>
