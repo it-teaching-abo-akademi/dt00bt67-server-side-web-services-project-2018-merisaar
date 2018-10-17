@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
 from django.contrib.auth import get_user_model
-from .forms import BlogForm, CopyOfForm, UserCreationForm, CreateAuctionForm, EditAuctionForm
+from .forms import *
 from .models import BlogModel, Auction
 
 from django.contrib import messages
@@ -21,14 +21,32 @@ def hello(request):
 def show_all_data(request):
     try:
         unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now())
-
+        auctions = unexpired_posts.order_by('-deadline')
         # auctions = Auction.objects.order_by('-deadline')
     except Exception:
         return HttpResponse("Lopeta heti paikalla")
     return render(request, "homePage/show.html", {"auctions": unexpired_posts})
 
-def bidAuction(request):
-    HttpResponse("Implementing..")
+class BidAuction(View):
+    def get(self, request, id):
+        if request.user.is_authenticated:
+            user = request.user
+            auction = get_object_or_404(Auction, id=id)
+            if (auction.seller == user):
+                return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction})
+            else:
+                return render(request, "AuctionHandler/bidAuction.html", {"user": user, "auction": auction})
+        else:
+            return HttpResponseRedirect(reverse("login"))
+
+    def post(self, request, id):
+        auction = Auction.objects.get(id=id)
+        form = BidAuctionForm(request.POST, instance = auction)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.INFO, "Bid accepted")
+            return HttpResponseRedirect(reverse("home"))
+        return HttpResponse('Error')
 
 class EditBlogView(View):
     def get(self, request, id):

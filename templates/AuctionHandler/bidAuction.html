@@ -1,0 +1,19 @@
+{% extends 'AuctionHandler/base.html' %}
+{% block content %}
+  <h1>Edit auction:</h1>
+  <div >Title: {{auction.auctionTitle}}</div>
+  <div >Description: {{auction.description}}</div>
+   <form action="{% url 'bid_auction' auction.id %}" method="post">
+       {% csrf_token %}
+       Bid:<input id = "bid" onchange ="setTwoNumberDecimal(this.value)" type="number" name="minimumPrice" min="{{auction.minimumPrice}}" step="0.01" value={{auction.minimumPrice}}>
+       <input type="submit" value="Bid">
+   </form>
+
+   <script>
+     function setTwoNumberDecimal(value) {
+       console.log('test')
+       value = parseFloat(value).toFixed(2);
+       document.getElementById("bid").value = value;
+     }
+</script>
+{% endblock %}

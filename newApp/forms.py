@@ -23,11 +23,16 @@ class CreateAuctionForm(forms.ModelForm):
         class Meta:
             model = Auction
             fields = ['auctionTitle', 'description', 'minimumPrice']
-            
+
 class EditAuctionForm(forms.ModelForm):
         class Meta:
             model = Auction
             fields = ['description']
+
+class BidAuctionForm(forms.ModelForm):
+        class Meta:
+            model = Auction
+            fields = ['minimumPrice']
 
 
 
