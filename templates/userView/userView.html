@@ -21,6 +21,7 @@
  <h1>{{ auction.auctionTitle }}</h1>
      <p>Description: {{ auction.description }}</p>
      <p>Closing: {{ auction.deadline }}</p>
+     <p>: {{ auction.set.bidder }}</p>
      {# <a href="{% url 'edit_blog' p.id %}">Edit contact</a> #}
      <br>
  {% endfor %}

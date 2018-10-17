@@ -17,7 +17,6 @@ class BlogModel(models.Model):
     def __str__(self):
         return self.title
 
-
 class Auction(models.Model):
     seller = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE
@@ -29,6 +28,14 @@ class Auction(models.Model):
     def __str__(self):
          return "{} {}".format(self.auctionTitle, self.description)
 
+class AuctionBid(models.Model):
+    bidder = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE
+    )
+    auction = models.ForeignKey(
+        Auction, on_delete=models.CASCADE
+    )
+    timestamp = models.DateTimeField(default=datetime.now())
 # class User(AbstractUser):
 #     pass
 # class User(models.Model):
