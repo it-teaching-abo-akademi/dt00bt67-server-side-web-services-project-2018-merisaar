@@ -27,7 +27,7 @@ class Auction(models.Model):
     minimumPrice = models.DecimalField(max_digits=5, decimal_places=2)
     deadline = models.DateTimeField(default=datetime.now() + timedelta(hours=72))
     def __str__(self):
-        return self.title
+         return "{} {}".format(self.auctionTitle, self.description)
 
 # class User(AbstractUser):
 #     pass

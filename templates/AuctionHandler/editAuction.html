@@ -1,0 +1,10 @@
+{% extends 'AuctionHandler/base.html' %}
+{% block content %}
+  <h1>Edit auction:</h1>
+  <div >Title: {{auction.auctionTitle}}</div>
+   <form action="{% url 'edit_auction' auction.id %}" method="post">
+       {% csrf_token %}
+       New description:<textarea name="description" cols="50" rows="20"> {{ auction.description }}</textarea>
+       <input type="submit" value="Save changes">
+   </form>
+{% endblock %}

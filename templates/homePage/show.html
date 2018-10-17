@@ -3,6 +3,11 @@
 {% block content %}
   {% for auction in auctions %}
   <h1>{{ auction.auctionTitle }}</h1>
+  {% if user.is_authenticated %}
+      <a href="{% url 'edit_auction' auction.id %}">Edit auction</a>
+  {% else %}
+      <a href="{% url 'bid_auction' %}">Bid</a>
+  {% endif %}
       <p>Text: {{ auction.description }}</p>
       <p>Auction closes: {{ auction.deadline }}</p>
       {# <a href="{% url 'edit_blog' p.id %}">Edit contact</a> #}

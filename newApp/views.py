@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
 from django.contrib.auth import get_user_model
-from .forms import BlogForm, CopyOfForm, UserCreationForm, CreateAuctionForm
+from .forms import BlogForm, CopyOfForm, UserCreationForm, CreateAuctionForm, EditAuctionForm
 from .models import BlogModel, Auction
 
 from django.contrib import messages
@@ -21,11 +21,14 @@ def hello(request):
 def show_all_data(request):
     try:
         unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now())
-        # unexpired_posts.save()
+
         # auctions = Auction.objects.order_by('-deadline')
     except Exception:
         return HttpResponse("Lopeta heti paikalla")
     return render(request, "homePage/show.html", {"auctions": unexpired_posts})
+
+def bidAuction(request):
+    HttpResponse("Implementing..")
 
 class EditBlogView(View):
     def get(self, request, id):
@@ -43,6 +46,28 @@ class EditBlogView(View):
         return HttpResponse('Error')
 
 
+class EditAuction(View):
+    def get(self, request, id):
+        if request.user.is_authenticated:
+            user = request.user
+            auction = get_object_or_404(Auction, id=id)
+            if (auction.seller == user):
+                return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction})
+            else:
+                return render(reverse("home"))
+        else:
+            return HttpResponseRedirect(reverse("login"))
+
+    def post(self, request, id):
+        auction = Auction.objects.get(id=id)
+        form = EditAuctionForm(request.POST, instance = auction)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.INFO, "Auction description updated")
+            return HttpResponseRedirect(reverse("home"))
+        return HttpResponse(auction)
+
+
 class EditUser(View):
     def get(self, request):
         if request.user.is_authenticated:
@@ -55,11 +80,6 @@ class EditUser(View):
     def post(self, request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            # u = User.objects.get(username_exact=form.cleaned_data['username'])
-            # u.set_password(form.cleaned_data['password'])
-            # u.set_email(form.cleaned_data['email'])
-            # u.save()
-            # messages.add_message(request, messages.INFO, "Blog updated")
             return HttpResponseRedirect(reverse("home"))
         else: return HttpResponse('Error')
 
@@ -116,7 +136,7 @@ class Blog(View):
 class AddAuction(View):
     def get(self, request):
         form = CreateAuctionForm()
-        return render(request, "AddAuction/auctionForm.html", {"form": form})
+        return render(request, "AuctionHandler/auctionForm.html", {"form": form})
 
     def post(self, request):
         form = CreateAuctionForm(request.POST)
@@ -130,7 +150,7 @@ class AddAuction(View):
             return HttpResponseRedirect(reverse("home"))
         else:
             form = UserCreationForm(request.POST)
-            return render(request, "AddAuction/auctionForm.html", {"form": form})
+            return render(request, "AuctionHandler/auctionForm.html", {"form": form})
 
 # def saveAuction(request):
 #     option = request.POST.get('option', 'no')
