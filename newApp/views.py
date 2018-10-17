@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-import datetime
+from datetime import datetime
 # Create your views here.
 
 def hello(request):
@@ -20,26 +20,12 @@ def hello(request):
 
 def show_all_data(request):
     try:
-        auctions = Auction.objects.order_by('-deadline')
+        unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now())
+        # unexpired_posts.save()
+        # auctions = Auction.objects.order_by('-deadline')
     except Exception:
         return HttpResponse("Lopeta heti paikalla")
-    return render(request, "homePage/show.html", {"auctions": auctions})
-
-# def show_all_data(request):
-#     try:
-#         blogs = BlogModel.objects.order_by('-timestamp')
-#     except Exception:
-#         return HttpResponse("Lopeta heti paikalla")
-#     return render(request, "show.html", {"blogs": blogs})
-
-# def modify_registration(request):
-#     if request.user.is_authenticated:
-#         user = request.user
-#         return render(request, "userView.html", {"user": user})
-#     else:
-#         return HttpResponse("No logged in user")
-
-
+    return render(request, "homePage/show.html", {"auctions": unexpired_posts})
 
 class EditBlogView(View):
     def get(self, request, id):
@@ -130,7 +116,7 @@ class Blog(View):
 class AddAuction(View):
     def get(self, request):
         form = CreateAuctionForm()
-        return render(request, "auctionForm.html", {"form": form})
+        return render(request, "AddAuction/auctionForm.html", {"form": form})
 
     def post(self, request):
         form = CreateAuctionForm(request.POST)
@@ -138,25 +124,25 @@ class AddAuction(View):
             userAuction = form.save(commit = False)
             userAuction.seller = request.user
             userAuction.save()
-            messages.add_message(request, messages.INFO, "New user created")
+            # token = default_token_generator.make_token(userAuction)
+            # uid = urlsafe_base64_encode(force_bytes(userAuction.pk))
+            messages.add_message(request, messages.INFO, "New auction created")
             return HttpResponseRedirect(reverse("home"))
         else:
             form = UserCreationForm(request.POST)
-            return render(request, "auctionForm.html", {"form": form})
+            return render(request, "AddAuction/auctionForm.html", {"form": form})
 
-
-
-def saveBlog(request):
-    option = request.POST.get('option', 'no')
-    if option == 'yes':
-        title = request.POST.get('c_title', '')
-        body = request.POST.get('c_body', '')
-        blog = BlogModel(title=title, timestamp=datetime.datetime.now(), body=body)
-        blog.save()
-        return HttpResponseRedirect(reverse("home"))
-    else:
-        messages.add_message(request, messages.INFO, "Whatever")
-        return HttpResponseRedirect(reverse("save_form"))
+# def saveAuction(request):
+#     option = request.POST.get('option', 'no')
+#     if option == 'yes':
+#         title = request.POST.get('c_title', '')
+#         body = request.POST.get('c_body', '')
+#         blog = BlogModel(title=title, timestamp=datetime.datetime.now(), body=body)
+#         blog.save()
+#         return HttpResponseRedirect(reverse("home"))
+#     else:
+#         messages.add_message(request, messages.INFO, "Whatever")
+#         return HttpResponseRedirect(reverse("save_form"))
 
 
 class registerUser(View):
