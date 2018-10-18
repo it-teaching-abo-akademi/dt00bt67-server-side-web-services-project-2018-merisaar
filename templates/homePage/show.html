@@ -3,10 +3,14 @@
 {% block content %}
   {% for auction in auctions %}
   <h1>{{ auction.auctionTitle }}</h1>
-  {% if user == auction.seller %}
-      <a href="{% url 'edit_auction' auction.id %}">Edit auction</a>
-  {% else %}
-      <a href="{% url 'bid_auction' auction.id %}">Bid</a>
+  {% if user.is_authenticated %}
+    {% if user == auction.seller %}
+        <a href="{% url 'edit_auction' auction.id %}">Edit auction</a>
+    {% else %}
+      {% if user != auction.bidder %}
+        <a href="{% url 'bid_auction' auction.id %}">Bid</a>
+        {% endif %}
+    {% endif %}
   {% endif %}
       <p>Text: {{ auction.description }}</p>
       <p>Minimum bid: {{ auction.minimumPrice }}</p>

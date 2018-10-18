@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import BlogModel
+from .models import BlogModel, Auction
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
@@ -15,3 +15,4 @@ class CustomUserAdmin(UserAdmin):
 admin.site.register(CustomUser, CustomUserAdmin)
 # Register your models here.
 admin.site.register(BlogModel)
+admin.site.register(Auction)

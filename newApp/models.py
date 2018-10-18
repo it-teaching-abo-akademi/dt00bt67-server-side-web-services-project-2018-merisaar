@@ -25,17 +25,20 @@ class Auction(models.Model):
     description = models.TextField()
     minimumPrice = models.DecimalField(max_digits=5, decimal_places=2)
     deadline = models.DateTimeField(default=datetime.now() + timedelta(hours=72))
+    bidder = models.ForeignKey(
+             get_user_model(), on_delete=models.CASCADE, null = True, related_name = "bidder"
+    )
     def __str__(self):
          return "{} {}".format(self.auctionTitle, self.description)
 
-class AuctionBid(models.Model):
-    bidder = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE
-    )
-    auction = models.ForeignKey(
-        Auction, on_delete=models.CASCADE
-    )
-    timestamp = models.DateTimeField(default=datetime.now())
+# class AuctionBid(models.Model):
+#     bidder = models.ForeignKey(
+#         get_user_model(), on_delete=models.CASCADE
+#     )
+#     auction = models.ForeignKey(
+#         Auction, on_delete=models.CASCADE
+#     )
+#     timestamp = models.DateTimeField(default=datetime.now())
 # class User(AbstractUser):
 #     pass
 # class User(models.Model):

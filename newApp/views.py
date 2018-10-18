@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.views import View
 from django.contrib.auth import get_user_model
 from .forms import *
-from .models import BlogModel, Auction, AuctionBid
+from .models import BlogModel, Auction
 
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -43,9 +43,9 @@ class BidAuction(View):
         auction = Auction.objects.get(id=id)
         form = BidAuctionForm(request.POST, instance = auction)
         if form.is_valid():
-            form.save()
-            bid = AuctionBid(bidder=request.user, auction=auction)
-            bid.save()
+            userBid = form.save(commit = False)
+            userBid.bidder = request.user
+            userBid.save()
             messages.add_message(request, messages.INFO, "Bid accepted")
             return HttpResponseRedirect(reverse("home"))
         return HttpResponse('Error')
