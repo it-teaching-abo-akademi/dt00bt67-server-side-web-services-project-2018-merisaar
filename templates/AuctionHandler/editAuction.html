@@ -1,7 +1,7 @@
 {% extends 'AuctionHandler/base.html' %}
 {% block content %}
   <h1>Edit auction:</h1>
-  <div >Highest bidder: {{auction.bidder}}</div>
+  {# <div >Highest bidder: {{auction.bidder}}</div> #}
   <div >Title: {{auction.auctionTitle}}</div>
    <form action="{% url 'edit_auction' auction.id %}" method="post">
        {% csrf_token %}

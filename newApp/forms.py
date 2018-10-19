@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import CustomUser, Auction
+from .models import CustomUser, Auction, BidAuction
 from django.contrib.auth import get_user_model
 
 class CustomUserCreationForm(UserCreationForm):
@@ -31,8 +31,8 @@ class EditAuctionForm(forms.ModelForm):
 
 class BidAuctionForm(forms.ModelForm):
         class Meta:
-            model = Auction
-            fields = ['minimumPrice']
+            model = BidAuction
+            fields = ['bid']
 
 
 class BlogForm(forms.ModelForm):

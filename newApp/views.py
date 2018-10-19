@@ -13,6 +13,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from datetime import datetime
 from django.core.mail import send_mail
+
 # Create your views here.
 
 def hello(request):
@@ -39,12 +40,14 @@ def show_banned(request):
     else:
         unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now(), banned = False)
         return render(request, "homePage/show.html", {"auctions": unexpired_posts})
+
 class BidAuctionClass(View):
     def get(self, request, id):
         if request.user.is_authenticated:
             user = request.user
             auction = get_object_or_404(Auction, id=id)
             highestBid = BidAuction.objects.filter(auction = auction).first()
+            #Too many nested if statements
             if not highestBid:
                 if (auction.seller == user):
                     return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction, "highestBid": None})
@@ -64,12 +67,14 @@ class BidAuctionClass(View):
         auction = Auction.objects.get(id=id)
         form = BidAuctionForm(request.POST)
         if form.is_valid():
+            #What about banned posts or already highest bids?
             highestBid = BidAuction.objects.filter(auction = auction).first()
             userBid = form.save(commit = False)
             userBid.bidder = request.user
             userBid.auction = auction
+            auction.minimumPrice = userBid.bid
             userBid.save()
-            #These are correct but commented to avoid spam.
+
             if highestBid:
                 send_mail('New bid on auction',
                 'New bid on your auction titled ' + auction.auctionTitle + '.',
@@ -83,6 +88,7 @@ class BidAuctionClass(View):
             form = BidAuctionForm(request.POST)
             return render(request, "AuctionHandler/auctionForm.html", {"form": form})
 
+#Gets form for banning auction and sets auction to banned
 class BanAuction(View):
     def get(self, request, id):
         if request.user.is_superuser:
