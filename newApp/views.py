@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.views import View
 from django.contrib.auth import get_user_model
 from .forms import *
-from .models import BlogModel, Auction
+from .models import BlogModel, Auction, BidAuction
 
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -21,7 +21,7 @@ def hello(request):
 
 def show_all_data(request):
     try:
-        unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now(), banned = False)
+        unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now(), active = True)
         auctions = unexpired_posts.order_by('-deadline')
         # auctions = Auction.objects.order_by('-deadline')
     except Exception:
@@ -39,17 +39,22 @@ def show_banned(request):
     else:
         unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now(), banned = False)
         return render(request, "homePage/show.html", {"auctions": unexpired_posts})
-class BidAuction(View):
+class BidAuctionClass(View):
     def get(self, request, id):
         if request.user.is_authenticated:
-            send_mail('Testing', 'Testing', 'merisrnn@gmail.com', ['mtmsaa@utu.fi',])
             user = request.user
             auction = get_object_or_404(Auction, id=id)
-            if (auction.seller == user):
-                return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction})
+            highestBid = BidAuction.objects.filter(auction = auction).first()
+            if not highestBid:
+                if (auction.seller == user):
+                    return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction, "highestBid": None})
+                else:
+                    return render(request, "AuctionHandler/bidAuction.html", {"user": user, "auction": auction})
             else:
-                if(auction.bidder == user):
+                if (highestBid.bidder == user):
                     return HttpResponseRedirect(reverse("home"))
+                elif auction.seller == user:
+                    return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction, "highestBid": highestBid})
                 else:
                     return render(request, "AuctionHandler/bidAuction.html", {"user": user, "auction": auction})
         else:
@@ -57,11 +62,21 @@ class BidAuction(View):
 
     def post(self, request, id):
         auction = Auction.objects.get(id=id)
-        form = BidAuctionForm(request.POST, instance = auction)
+        form = BidAuctionForm(request.POST)
         if form.is_valid():
+            highestBid = BidAuction.objects.filter(auction = auction).first()
             userBid = form.save(commit = False)
             userBid.bidder = request.user
+            userBid.auction = auction
             userBid.save()
+            #These are correct but commented to avoid spam.
+            if highestBid:
+                send_mail('New bid on auction',
+                'New bid on your auction titled ' + auction.auctionTitle + '.',
+                'merisrnn@gmail.com', [highestBid.bidder.email,])
+            send_mail('New bid on you auction',
+            'New bid on your auction titled ' + auction.auctionTitle + '.',
+             'merisrnn@gmail.com', [auction.seller.email,])
             messages.add_message(request, messages.INFO, "Bid accepted")
             return HttpResponseRedirect(reverse("home"))
         else:
@@ -79,7 +94,15 @@ class BanAuction(View):
         auction = Auction.objects.get(id=id)
         auction.banned = True
         auction.save()
-        #Send email to bidders and auction creator
+        #Send email to highestBidders and auction creator
+        send_mail('Your auction has been banned',
+         'Your auction titled ' + auction.auctionTitle + ' has been banned.',
+         'merisrnn@gmail.com', [auction.seller.email,])
+        list = BidAuction.objects.filter(auction = auction)
+        send_mail('Action you have bidded to has been banned',
+         'Auction titled ' + auction.auctionTitle + ' has been banned.',
+         'merisrnn@gmail.com', [list])
+
         messages.add_message(request, messages.INFO, "Auction banned")
         return HttpResponseRedirect(reverse("home"))
 #
@@ -197,8 +220,7 @@ class AddAuction(View):
             userAuction = form.save(commit = False)
             userAuction.seller = request.user
             userAuction.save()
-            # token = default_token_generator.make_token(userAuction)
-            # uid = urlsafe_base64_encode(force_bytes(userAuction.pk))
+            send_mail('Auction added successfully.', 'Auction titled "' + userAuction.auctionTitle + '" added successfully. Description: "' + userAuction.description + '".', 'merisrnn@gmail.com', [userAuction.seller.email,])
             messages.add_message(request, messages.INFO, "New auction created")
             return HttpResponseRedirect(reverse("home"))
         else:

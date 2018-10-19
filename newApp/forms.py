@@ -35,7 +35,6 @@ class BidAuctionForm(forms.ModelForm):
             fields = ['minimumPrice']
 
 
-
 class BlogForm(forms.ModelForm):
     class Meta:
         model = BlogModel
