@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from datetime import datetime
+from django.core.mail import send_mail
 # Create your views here.
 
 def hello(request):
@@ -20,22 +21,37 @@ def hello(request):
 
 def show_all_data(request):
     try:
-        unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now())
+        unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now(), banned = False)
         auctions = unexpired_posts.order_by('-deadline')
         # auctions = Auction.objects.order_by('-deadline')
     except Exception:
         return HttpResponse("Lopeta heti paikalla")
-    return render(request, "homePage/show.html", {"auctions": unexpired_posts})
+    return render(request, "homePage/show.html", {"auctions": auctions})
 
+def show_banned(request):
+    if request.user.is_superuser:
+        try:
+            banned_posts = Auction.objects.filter(banned = True)
+            auctions = banned_posts.order_by('-deadline')
+        except Exception:
+            return HttpResponse("Lopeta heti paikalla")
+        return render(request, "homePage/show.html", {"auctions":auctions})
+    else:
+        unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now(), banned = False)
+        return render(request, "homePage/show.html", {"auctions": unexpired_posts})
 class BidAuction(View):
     def get(self, request, id):
         if request.user.is_authenticated:
+            send_mail('Testing', 'Testing', 'merisrnn@gmail.com', ['mtmsaa@utu.fi',])
             user = request.user
             auction = get_object_or_404(Auction, id=id)
             if (auction.seller == user):
                 return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction})
             else:
-                return render(request, "AuctionHandler/bidAuction.html", {"user": user, "auction": auction})
+                if(auction.bidder == user):
+                    return HttpResponseRedirect(reverse("home"))
+                else:
+                    return render(request, "AuctionHandler/bidAuction.html", {"user": user, "auction": auction})
         else:
             return HttpResponseRedirect(reverse("login"))
 
@@ -48,7 +64,24 @@ class BidAuction(View):
             userBid.save()
             messages.add_message(request, messages.INFO, "Bid accepted")
             return HttpResponseRedirect(reverse("home"))
-        return HttpResponse('Error')
+        else:
+            form = BidAuctionForm(request.POST)
+            return render(request, "AuctionHandler/auctionForm.html", {"form": form})
+
+class BanAuction(View):
+    def get(self, request, id):
+        if request.user.is_superuser:
+            user = request.user
+            auction = get_object_or_404(Auction, id=id)
+            return render(request, "AuctionHandler/banAuction.html", {"auction": auction})
+
+    def post(self, request, id):
+        auction = Auction.objects.get(id=id)
+        auction.banned = True
+        auction.save()
+        #Send email to bidders and auction creator
+        messages.add_message(request, messages.INFO, "Auction banned")
+        return HttpResponseRedirect(reverse("home"))
 #
 # class EditBlogView(View):
 #     def get(self, request, id):
@@ -169,7 +202,7 @@ class AddAuction(View):
             messages.add_message(request, messages.INFO, "New auction created")
             return HttpResponseRedirect(reverse("home"))
         else:
-            form = UserCreationForm(request.POST)
+            form = CreateAuctionForm(request.POST)
             return render(request, "AuctionHandler/auctionForm.html", {"form": form})
 
 # def saveAuction(request):

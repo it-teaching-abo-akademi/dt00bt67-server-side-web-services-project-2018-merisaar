@@ -38,5 +38,7 @@ urlpatterns = [
     path('home/auction', AddAuction.as_view() , name = "add_auction"),
     path('home/auction/bid/<int:id>/', BidAuction.as_view() , name = "bid_auction"),
     path('home/auction/edit/<int:id>/', EditAuction.as_view() , name = "edit_auction"),
+    path('home/auction/ban/<int:id>/', BanAuction.as_view() , name = "ban_auction"),
+    path('home/auction/banned/', show_banned , name = "banned_auctions"),
 
     ]

@@ -25,39 +25,9 @@ class Auction(models.Model):
     description = models.TextField()
     minimumPrice = models.DecimalField(max_digits=5, decimal_places=2)
     deadline = models.DateTimeField(default=datetime.now() + timedelta(hours=72))
+    banned = models.BooleanField(default=False)
     bidder = models.ForeignKey(
              get_user_model(), on_delete=models.CASCADE, null = True, related_name = "bidder"
     )
     def __str__(self):
          return "{} {}".format(self.auctionTitle, self.description)
-
-# class AuctionBid(models.Model):
-#     bidder = models.ForeignKey(
-#         get_user_model(), on_delete=models.CASCADE
-#     )
-#     auction = models.ForeignKey(
-#         Auction, on_delete=models.CASCADE
-#     )
-#     timestamp = models.DateTimeField(default=datetime.now())
-# class User(AbstractUser):
-#     pass
-# class User(models.Model):
-#     username = models.CharField(max_length=150)
-#     email = models.EmailField()
-#     password = models.CharField(max_length=150)
-#     timestamp = models.DateTimeField()
-#     def __str__(self):
-#         return self.title
-# class User(AbstractBaseUser, PermissionsMixin):
-#     email = models.EmailField(unique=True)
-#     username = models.CharField(max_length=25, unique=True)
-#     date_joined = models.DateTimeField(default=timezone.now)
-#     objects = UserManager()
-#     REQUIRED_FIELDS ["email"]
-#     def __str__(self):
-#         return "@{}".format(self.username)
-#
-#     def get_short_name(self):
-#         return self.alias
-#     def get_long_name(self):
-#         return "{} @{}".format(self.alias, self.username)

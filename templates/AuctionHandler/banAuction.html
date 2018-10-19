@@ -1,0 +1,11 @@
+{% extends 'AuctionHandler/base.html' %}
+{% block content %}
+  <h1>Ban auction:</h1>
+  <div >Highest bidder: {{auction.bidder}}</div>
+  <div >Title: {{auction.auctionTitle}}</div>
+  <div >Title: {{auction.description}}</div>
+   <form action="{% url 'ban_auction' auction.id %}" method="post">
+       {% csrf_token %}
+       <button id=banButton type="submit" name="banned" value="False" onclick="bannedTrue()">Ban auction</button>
+   </form>
+{% endblock %}
