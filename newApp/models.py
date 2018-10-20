@@ -45,6 +45,6 @@ class BidAuction(models.Model):
      )
      timestamp = models.DateTimeField(default=datetime.now())
      auction = models.ForeignKey(
-        Auction, on_delete=models.CASCADE, null = True, related_name = "bidder"
+        Auction, on_delete=models.CASCADE, null = True, related_name = "auctionBid"
      )
      bid = models.DecimalField(max_digits=5, decimal_places=2, default = 0.0)

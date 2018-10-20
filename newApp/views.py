@@ -22,7 +22,7 @@ def hello(request):
 
 def show_all_data(request):
     try:
-        unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now(), active = True)
+        unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now(), banned = False)
         auctions = unexpired_posts.order_by('-deadline')
         # auctions = Auction.objects.order_by('-deadline')
     except Exception:
@@ -50,14 +50,14 @@ class BidAuctionClass(View):
             #Too many nested if statements
             if not highestBid:
                 if (auction.seller == user):
-                    return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction, "highestBid": None})
+                    return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction})
                 else:
                     return render(request, "AuctionHandler/bidAuction.html", {"user": user, "auction": auction})
             else:
                 if (highestBid.bidder == user):
                     return HttpResponseRedirect(reverse("home"))
                 elif auction.seller == user:
-                    return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction, "highestBid": highestBid})
+                    return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction})
                 else:
                     return render(request, "AuctionHandler/bidAuction.html", {"user": user, "auction": auction})
         else:
@@ -198,22 +198,6 @@ def createAuction(request):
     else:
         return HttpResponse('You have to logged in to view this page.')
 
-class Blog(View):
-    def get(self, request):
-        form = BlogForm()
-        return render(request, "forms.html", {"form": form})
-
-    def post(self, request):
-        form = BlogForm(request.POST)
-        if(form.is_valid()):
-            cd = form.cleaned_data
-            blog_t = cd['title']
-            blog_b = cd['body']
-            form = CopyOfForm({"c_title": blog_t, "c_body": blog_b})
-            return render(request, "confirmation.html", {"form": form})
-            #Sessions:
-            # request.session('blog_t') = blog_t
-            # request.session('blog_b') = blog_b
 
 class AddAuction(View):
     def get(self, request):
@@ -270,3 +254,20 @@ class registerUser(View):
             form = UserCreationForm(request.POST)
 
             return render(request, "registration/registration.html", {"form": form})
+
+            # class Blog(View):
+            #     def get(self, request):
+            #         form = BlogForm()
+            #         return render(request, "forms.html", {"form": form})
+            #
+            #     def post(self, request):
+            #         form = BlogForm(request.POST)
+            #         if(form.is_valid()):
+            #             cd = form.cleaned_data
+            #             blog_t = cd['title']
+            #             blog_b = cd['body']
+            #             form = CopyOfForm({"c_title": blog_t, "c_body": blog_b})
+            #             return render(request, "confirmation.html", {"form": form})
+            #             #Sessions:
+            #             # request.session('blog_t') = blog_t
+            #             # request.session('blog_b') = blog_b

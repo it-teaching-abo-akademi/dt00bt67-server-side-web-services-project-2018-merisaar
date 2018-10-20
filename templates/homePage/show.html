@@ -3,14 +3,14 @@
 {% block content %}
   {% for auction in auctions %}
   <h1>{{ auction.auctionTitle }}</h1>
-  {% if user.is_superuser %}
+  {% if user.is_superuser and auction.banned == False %}
     <a href="{% url 'ban_auction' auction.id %}">Ban auction</a>
   {% endif %}
   {% if user.is_authenticated %}
     {% if user == auction.seller %}
         <a href="{% url 'edit_auction' auction.id %}">Edit auction</a>
     {% else %}
-        {% if auction.bidder.first.bidder != user %}
+        {% if auction.auctionBid.first.bidder != user %}
             <a href="{% url 'bid_auction' auction.id %}">Bid</a>
         {% endif %}
     {% endif %}
