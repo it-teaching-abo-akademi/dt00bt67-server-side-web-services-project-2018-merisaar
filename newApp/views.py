@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.views import View
 from django.contrib.auth import get_user_model
 from .forms import *
-from .models import BlogModel, Auction, BidAuction
+from .models import Auction, BidAuction
 
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -72,7 +72,7 @@ class BidAuctionClass(View):
             userBid = form.save(commit = False)
             userBid.bidder = request.user
             userBid.auction = auction
-            auction.minimumPrice = userBid.bid
+            auction.minimumPrice = userBid.value
             userBid.save()
 
             if highestBid:
@@ -105,28 +105,12 @@ class BanAuction(View):
          'Your auction titled ' + auction.auctionTitle + ' has been banned.',
          'merisrnn@gmail.com', [auction.seller.email,])
         list = BidAuction.objects.filter(auction = auction)
-        send_mail('Action you have bidded to has been banned',
+        send_mass_mail('Action you have bidded to has been banned',
          'Auction titled ' + auction.auctionTitle + ' has been banned.',
          'merisrnn@gmail.com', [list])
 
         messages.add_message(request, messages.INFO, "Auction banned")
         return HttpResponseRedirect(reverse("home"))
-#
-# class EditBlogView(View):
-#     def get(self, request, id):
-#         b = get_object_or_404(BlogModel, id=id)
-#         return render(request, "edit.html", {"blog": b})
-#
-#     def post(self, request, id):
-#         # This will return an array of one blog or none
-#         blog = BlogModel.objects.get(id=id)
-#         form = BlogForm(request.POST, instance = blog)
-#         if form.is_valid():
-#             form.save()
-#             messages.add_message(request, messages.INFO, "Blog updated")
-#             return HttpResponseRedirect(reverse("home"))
-#         return HttpResponse('Error')
-
 
 class EditAuction(View):
     def get(self, request, id):

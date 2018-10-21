@@ -1,5 +1,4 @@
 from django import forms
-from .models import BlogModel
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
@@ -32,13 +31,7 @@ class EditAuctionForm(forms.ModelForm):
 class BidAuctionForm(forms.ModelForm):
         class Meta:
             model = BidAuction
-            fields = ['bid']
-
-
-class BlogForm(forms.ModelForm):
-    class Meta:
-        model = BlogModel
-        fields = ['title', 'body']
+            fields = ['value']
 
 class CopyOfForm(forms.Form):
     CHOICES = [(x,x) for x in ("yes", "no")]
