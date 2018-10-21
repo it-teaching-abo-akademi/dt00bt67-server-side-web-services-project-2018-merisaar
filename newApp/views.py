@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.core.mail import send_mail
 
 # Create your views here.
@@ -73,6 +73,9 @@ class BidAuctionClass(View):
             userBid.bidder = request.user
             userBid.auction = auction
             auction.minimumPrice = userBid.value
+            #Soft deadlines
+            # if(userBid.deadline<datetime.now()+timedelta(minutes=5) && userBid.deadline> datetime.now()):
+            #     userBid.deadline= datetime.now()+timedelta(minutes=5)
             userBid.save()
 
             if highestBid:
@@ -99,6 +102,7 @@ class BanAuction(View):
     def post(self, request, id):
         auction = Auction.objects.get(id=id)
         auction.banned = True
+        auction.active = False
         auction.save()
         #Send email to highestBidders and auction creator
         send_mail('Your auction has been banned',
