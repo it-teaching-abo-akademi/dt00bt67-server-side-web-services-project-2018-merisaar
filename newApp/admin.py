@@ -13,7 +13,7 @@ class CustomUserAdmin(UserAdmin):
     list_display = ['email', 'username',]
 
 class AuctionAdmin(admin.ModelAdmin):
-    list_display = ['auctionTitle', 'minimumPrice', 'deadline', 'active']
+    list_display = ['auctionTitle', 'minimumPrice', 'deadline', 'active', 'banned']
 
     def current_bid_display(self, obj):
         return "£{0}".format(obj.highestBid)

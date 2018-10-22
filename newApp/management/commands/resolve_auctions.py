@@ -2,11 +2,13 @@ from django.core.management.base import BaseCommand, CommandError
 from newApp.models import *
 from django.utils import timezone
 from django.core.mail import send_mail
+from django_cron import CronJobBase, Schedule
 
-
-class Command(BaseCommand):
+class Command(CronJobBase):
     help = 'Runs through email queue and sends emails'
-
+    RUN_EVERY_MINS = 30 # every half hours
+    schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
+    code = 'newApp.resolve_auctions'    # a unique code
     def add_arguments(self, parser):
         parser.add_argument('--id')
 
