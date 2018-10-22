@@ -20,10 +20,6 @@ from django.db.models import Q
 
 # Create your views here.
 
-def hello(request):
-    return HttpResponse("Hello world!")
-
-
 def show_all_data(request):
     try:
         unexpired_posts = Auction.objects.filter(banned = False, active=True)
@@ -35,12 +31,31 @@ def show_all_data(request):
 
 class AuctionList(ListView):
     queryset = Auction.objects.filter(banned = False, active=True).order_by('-deadline')
+    template_name = 'homePage/show.html'
+
+class AuctionBannedList(ListView):
+    queryset = Auction.objects.filter(banned = True).order_by('-deadline')
+    template_name = 'bannedList/banned_list.html'
 
 class SearchList(ListView):
     paginate_by = 10
-
+    template_name = 'homePage/show.html'
     def get_queryset(self):
         result = Auction.objects.filter(banned = False, active=True)
+        query = self.request.GET.get('q')
+        if query:
+            query_list = query.split()
+            result = result.filter(auctionTitle__icontains=query)
+                # reduce(operator.and_,
+                #        (Q(auctionTitle__icontains=q) for q in query_list))
+            # )
+
+        return result
+class SearchBannedList(ListView):
+    paginate_by = 10
+    template_name = 'bannedList/banned_list.html'
+    def get_queryset(self):
+        result = Auction.objects.filter(banned = True)
         query = self.request.GET.get('q')
         if query:
             query_list = query.split()

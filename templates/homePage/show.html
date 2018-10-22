@@ -1,7 +1,7 @@
 {% extends 'homePage/base.html' %}
 
 {% block content %}
-  {% for auction in auctions %}
+  {% for auction in object_list %}
   <h1>{{ auction.auctionTitle }}</h1>
   {% if user.is_superuser and auction.banned == False %}
     <a href="{% url 'ban_auction' auction.id %}">Ban auction</a>

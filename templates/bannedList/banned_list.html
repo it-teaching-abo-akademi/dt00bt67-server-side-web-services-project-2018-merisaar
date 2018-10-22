@@ -1,6 +1,7 @@
-{% extends 'homePage/base.html' %}
+{% extends 'bannedList/base.html' %}
 
 {% block content %}
+
   {% for auction in object_list %}
   <h1>{{ auction.auctionTitle }}</h1>
   {% if user.is_superuser and auction.banned == False %}

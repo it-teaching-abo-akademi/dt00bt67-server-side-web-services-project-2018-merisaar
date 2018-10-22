@@ -26,7 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^login/$', auth_views.LoginView.as_view(), name='login'),
     url(r'^logout/$', auth_views.LogoutView.as_view(), {'next_page': 'home/'}, name='logout'),
-    path('hello/', hello),
+    # path('hello/', hello),
     # path('home/', show_all_data, name ="home"),
     path('home/', AuctionList.as_view(), name ="home"),
     # path('edit/<int:id>/', EditBlogView.as_view(), name="edit_blog"),
@@ -40,7 +40,8 @@ urlpatterns = [
     path('home/auction/bid/<int:id>/', BidAuctionClass.as_view() , name = "bid_auction"),
     path('home/auction/edit/<int:id>/', EditAuction.as_view() , name = "edit_auction"),
     path('home/auction/ban/<int:id>/', BanAuction.as_view() , name = "ban_auction"),
-    path('home/auction/banned/', show_banned , name = "banned_auctions"),
+    path('home/auction/banned/', AuctionBannedList.as_view() , name = "banned_auctions"),
     path('home/auction/search', SearchList.as_view() , name = "search_list_view"),
+    path('home/auction/banned/search', SearchBannedList.as_view() , name = "search_banned_list"),
 
     ]
