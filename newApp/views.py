@@ -75,6 +75,7 @@ class SearchBannedList(ListView):
 #         unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now(), banned = False)
 #         return render(request, "homePage/show.html", {"auctions": unexpired_posts})
 
+@method_decorator(login_required, name='dispatch')
 class BidAuctionClass(View):
     def get(self, request, id):
         if request.user.is_authenticated:
@@ -126,15 +127,14 @@ class BidAuctionClass(View):
             return render(request, "AuctionHandler/auctionForm.html", {"form": form})
 
 #Gets form for banning auction and sets auction to banned
+@method_decorator([login_required, superuser_required], name='dispatch')
 class BanAuction(View):
-    @user_passes_test(lambda u: u.is_superuser)
     def get(self, request, id):
         if request.user.is_superuser:
             user = request.user
             auction = get_object_or_404(Auction, id=id)
             return render(request, "AuctionHandler/banAuction.html", {"auction": auction})
 
-    @user_passes_test(lambda u: u.is_superuser)
     def post(self, request, id):
         auction = Auction.objects.get(id=id)
         auction.banned = True
@@ -190,6 +190,7 @@ class EditUser(TemplateView):
             return HttpResponseRedirect(reverse("home"))
         else: return HttpResponse('Error')
 
+@login_required
 def changePassword(request):
     if request.method == 'POST':
         form = PasswordChangeForm(data= request.POST, user= request.user)
@@ -204,6 +205,7 @@ def changePassword(request):
         form = PasswordChangeForm(request.user)
     return render(request, 'userView/change_password.html', {'form': form })
 
+@login_required
 def changeEmail(request):
     if request.method == 'POST':
         user =get_user_model().objects.filter(username=request.user.username)
@@ -215,13 +217,6 @@ def changeEmail(request):
         #     messages.error(request, 'Please correct the error below.')
     else:
         return render(request, 'userView/base.html', {'user': request.user })
-
-
-def createAuction(request):
-    if request.user.is_authenticated:
-        return HttpResponse('In progress.')
-    else:
-        return HttpResponse('You have to logged in to view this page.')
 
 @method_decorator(login_required, name='dispatch')
 class AddAuction(TemplateView):
@@ -252,41 +247,15 @@ def change_language(request, lang_code):
 class registerUser(View):
     def get(self, request):
         form= UserCreationForm()
-
         return render(request, "registration/registration.html", {"form": form})
-
 
     def post(self, request):
         form = UserCreationForm(request.POST)
         if(form.is_valid()):
-
             form.save()
-            # username = form.cleaned_data['username']
-            # email = form.cleaned_data['email']
-            # password = form.clean_password2['password']
-            # new_user = User(username= username,email= email, password = password, timestamp = datetime.datetime.now())
-            # new_user.save()
-
             messages.add_message(request, messages.INFO, "New user created")
             return HttpResponseRedirect(reverse("home"))
         else:
             form = UserCreationForm(request.POST)
 
             return render(request, "registration/registration.html", {"form": form})
-
-            # class Blog(View):
-            #     def get(self, request):
-            #         form = BlogForm()
-            #         return render(request, "forms.html", {"form": form})
-            #
-            #     def post(self, request):
-            #         form = BlogForm(request.POST)
-            #         if(form.is_valid()):
-            #             cd = form.cleaned_data
-            #             blog_t = cd['title']
-            #             blog_b = cd['body']
-            #             form = CopyOfForm({"c_title": blog_t, "c_body": blog_b})
-            #             return render(request, "confirmation.html", {"form": form})
-            #             #Sessions:
-            #             # request.session('blog_t') = blog_t
-            #             # request.session('blog_b') = blog_b
