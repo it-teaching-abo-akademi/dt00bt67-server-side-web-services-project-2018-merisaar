@@ -6,7 +6,6 @@ from django.views import View
 from django.contrib.auth import get_user_model
 from .forms import *
 from .models import Auction, BidAuction
-
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
@@ -17,24 +16,19 @@ from functools import reduce
 import operator
 from django.views.generic import ListView
 from django.db.models import Q
+from django.utils.translation import gettext as _
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView
+from django.contrib.auth.decorators import user_passes_test
+from .decorators import superuser_required
 
-# pdb.set_trace()
-
-# Create your views here.
-
-# def show_all_data(request):
-#     try:
-#         unexpired_posts = Auction.objects.filter(banned = False, active=True)
-#         auctions = unexpired_posts.order_by('-deadline')
-#         # auctions = Auction.objects.order_by('-deadline')
-#     except Exception:
-#         return HttpResponse("Lopeta heti paikalla")
-#     return render(request, "newApp/auction_list.html", {"auctions": auctions})
 
 class AuctionList(ListView):
     queryset = Auction.objects.filter(banned = False, active=True).order_by('-deadline')
     template_name = 'homePage/show.html'
 
+@method_decorator([login_required, superuser_required], name='dispatch')
 class AuctionBannedList(ListView):
     queryset = Auction.objects.filter(banned = True).order_by('-deadline')
     template_name = 'bannedList/banned_list.html'
@@ -53,6 +47,7 @@ class SearchList(ListView):
             # )
 
         return result
+
 class SearchBannedList(ListView):
     paginate_by = 10
     template_name = 'bannedList/banned_list.html'
@@ -68,17 +63,17 @@ class SearchBannedList(ListView):
 
         return result
 
-def show_banned(request):
-    if request.user.is_superuser:
-        try:
-            banned_posts = Auction.objects.filter(banned = True)
-            auctions = banned_posts.order_by('-deadline')
-        except Exception:
-            return HttpResponse("Lopeta heti paikalla")
-        return render(request, "homePage/show.html", {"auctions":auctions})
-    else:
-        unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now(), banned = False)
-        return render(request, "homePage/show.html", {"auctions": unexpired_posts})
+# def show_banned(request):
+#     if request.user.is_superuser:
+#         try:
+#             banned_posts = Auction.objects.filter(banned = True)
+#             auctions = banned_posts.order_by('-deadline')
+#         except Exception:
+#             return HttpResponse("Lopeta heti paikalla")
+#         return render(request, "homePage/show.html", {"auctions":auctions})
+#     else:
+#         unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now(), banned = False)
+#         return render(request, "homePage/show.html", {"auctions": unexpired_posts})
 
 class BidAuctionClass(View):
     def get(self, request, id):
@@ -132,12 +127,14 @@ class BidAuctionClass(View):
 
 #Gets form for banning auction and sets auction to banned
 class BanAuction(View):
+    @user_passes_test(lambda u: u.is_superuser)
     def get(self, request, id):
         if request.user.is_superuser:
             user = request.user
             auction = get_object_or_404(Auction, id=id)
             return render(request, "AuctionHandler/banAuction.html", {"auction": auction})
 
+    @user_passes_test(lambda u: u.is_superuser)
     def post(self, request, id):
         auction = Auction.objects.get(id=id)
         auction.banned = True
@@ -155,7 +152,8 @@ class BanAuction(View):
         messages.add_message(request, messages.INFO, "Auction banned")
         return HttpResponseRedirect(reverse("home"))
 
-class EditAuction(View):
+@method_decorator(login_required, name='dispatch')
+class EditAuction(TemplateView):
     def get(self, request, id):
         if request.user.is_authenticated:
             user = request.user
@@ -176,8 +174,8 @@ class EditAuction(View):
             return HttpResponseRedirect(reverse("home"))
         return HttpResponse(auction)
 
-
-class EditUser(View):
+@method_decorator(login_required, name='dispatch')
+class EditUser(TemplateView):
     def get(self, request):
         if request.user.is_authenticated:
             user = request.user
@@ -225,8 +223,8 @@ def createAuction(request):
     else:
         return HttpResponse('You have to logged in to view this page.')
 
-
-class AddAuction(View):
+@method_decorator(login_required, name='dispatch')
+class AddAuction(TemplateView):
     def get(self, request):
         form = CreateAuctionForm()
         return render(request, "AuctionHandler/auctionForm.html", {"form": form})
@@ -244,17 +242,11 @@ class AddAuction(View):
             form = CreateAuctionForm(request.POST)
             return render(request, "AuctionHandler/auctionForm.html", {"form": form})
 
-# def saveAuction(request):
-#     option = request.POST.get('option', 'no')
-#     if option == 'yes':
-#         title = request.POST.get('c_title', '')
-#         body = request.POST.get('c_body', '')
-#         blog = BlogModel(title=title, timestamp=datetime.datetime.now(), body=body)
-#         blog.save()
-#         return HttpResponseRedirect(reverse("home"))
-#     else:
-#         messages.add_message(request, messages.INFO, "Whatever")
-#         return HttpResponseRedirect(reverse("save_form"))
+def change_language(request, lang_code):
+    translation.activate(lang_code)
+    request.session[translation.LANGUAGE_SESSION_KEY] = lang_code
+    messages.add_message(request, messages.INFO, "Language Changed to " + lang_code)
+    return HttpResponseRedirect(reverse("home"))
 
 
 class registerUser(View):
