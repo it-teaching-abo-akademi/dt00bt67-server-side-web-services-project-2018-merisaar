@@ -1,0 +1,24 @@
+{% extends 'homePage/base.html' %}
+
+{% block content %}
+  {% for auction in object_list %}
+  <h1>{{ auction.auctionTitle }}</h1>
+  {% if user.is_superuser and auction.banned == False %}
+    <a href="{% url 'ban_auction' auction.id %}">Ban auction</a>
+  {% endif %}
+  {% if user.is_authenticated %}
+    {% if user == auction.seller %}
+        <a href="{% url 'edit_auction' auction.id %}">Edit auction</a>
+    {% else %}
+        {% if auction.auctionBid.first.bidder != user %}
+            <a href="{% url 'bid_auction' auction.id %}">Bid</a>
+        {% endif %}
+    {% endif %}
+  {% endif %}
+      <p>Text: {{ auction.description }}</p>
+      <p>Minimum bid: {{ auction.minimumPrice }}</p>
+      <p>Auction closes: {{ auction.deadline }}</p>
+      {# <a href="{% url 'edit_blog' p.id %}">Edit contact</a> #}
+      <br>
+  {% endfor %}
+{% endblock %}

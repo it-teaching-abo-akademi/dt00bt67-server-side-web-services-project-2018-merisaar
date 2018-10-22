@@ -33,6 +33,14 @@ class BidAuctionForm(forms.ModelForm):
             model = BidAuction
             fields = ['value']
 
+        # def save(self, excerpt=None, force_insert=False, force_update=False, commit=True):
+        #     if BidAuction.objects.first().bidder == self.bidder:
+        #         print('Already highest bid')
+        # else:
+        #     super(BidAuction, self).save(*args, **kwargs)
+
+
+
 class CopyOfForm(forms.Form):
     CHOICES = [(x,x) for x in ("yes", "no")]
     option = forms.ChoiceField(choices=CHOICES)

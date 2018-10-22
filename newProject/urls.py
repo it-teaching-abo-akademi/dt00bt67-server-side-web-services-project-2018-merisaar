@@ -27,7 +27,8 @@ urlpatterns = [
     url(r'^login/$', auth_views.LoginView.as_view(), name='login'),
     url(r'^logout/$', auth_views.LogoutView.as_view(), {'next_page': 'home/'}, name='logout'),
     path('hello/', hello),
-    path('home/', show_all_data, name ="home"),
+    # path('home/', show_all_data, name ="home"),
+    path('home/', AuctionList.as_view(), name ="home"),
     # path('edit/<int:id>/', EditBlogView.as_view(), name="edit_blog"),
     # path('add/', Blog.as_view()),
     # path('saveAuction/', saveAuction, name = "save_form"),
@@ -40,5 +41,6 @@ urlpatterns = [
     path('home/auction/edit/<int:id>/', EditAuction.as_view() , name = "edit_auction"),
     path('home/auction/ban/<int:id>/', BanAuction.as_view() , name = "ban_auction"),
     path('home/auction/banned/', show_banned , name = "banned_auctions"),
+    path('home/auction/search', SearchList.as_view() , name = "search_list_view"),
 
     ]

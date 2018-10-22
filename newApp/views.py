@@ -13,6 +13,10 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from datetime import datetime, timedelta
 from django.core.mail import send_mail
+from functools import reduce
+import operator
+from django.views.generic import ListView
+from django.db.models import Q
 
 # Create your views here.
 
@@ -22,12 +26,30 @@ def hello(request):
 
 def show_all_data(request):
     try:
-        unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now(), banned = False)
+        unexpired_posts = Auction.objects.filter(banned = False, active=True)
         auctions = unexpired_posts.order_by('-deadline')
         # auctions = Auction.objects.order_by('-deadline')
     except Exception:
         return HttpResponse("Lopeta heti paikalla")
-    return render(request, "homePage/show.html", {"auctions": auctions})
+    return render(request, "newApp/auction_list.html", {"auctions": auctions})
+
+class AuctionList(ListView):
+    queryset = Auction.objects.filter(banned = False, active=True).order_by('-deadline')
+
+class SearchList(ListView):
+    paginate_by = 10
+
+    def get_queryset(self):
+        result = Auction.objects.filter(banned = False, active=True)
+        query = self.request.GET.get('q')
+        if query:
+            query_list = query.split()
+            result = result.filter(auctionTitle__icontains=query)
+                # reduce(operator.and_,
+                #        (Q(auctionTitle__icontains=q) for q in query_list))
+            # )
+
+        return result
 
 def show_banned(request):
     if request.user.is_superuser:
@@ -73,7 +95,7 @@ class BidAuctionClass(View):
             userBid.bidder = request.user
             userBid.auction = auction
             auction.minimumPrice = userBid.value
-            #Soft deadlines
+            #Soft deadline
             # if(userBid.deadline<datetime.now()+timedelta(minutes=5) && userBid.deadline> datetime.now()):
             #     userBid.deadline= datetime.now()+timedelta(minutes=5)
             userBid.save()

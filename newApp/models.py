@@ -27,17 +27,9 @@ class Auction(models.Model):
     minimumPrice = models.DecimalField(max_digits=5, decimal_places=2)
     deadline = models.DateTimeField(default=datetime.now() + timedelta(hours=72))
     banned = models.BooleanField(default=False)
-    # state = models.ForeignKey(
-    #     State, on_delete=models.CASCADE
-    # )
 
     def __str__(self):
          return "{} {}".format(self.auctionTitle, self.description)
-# class State(models.Model):
-#     active = models.BooleanField(default=True)
-#     banned = models.BooleanField(default=False)
-#     due = models.BooleanField(default=False)
-#     adjudicated = models.BooleanField(default=False)
 
 class BidAuction(models.Model):
      bidder = models.ForeignKey(
@@ -49,6 +41,13 @@ class BidAuction(models.Model):
      )
      value = models.DecimalField(max_digits=5, decimal_places=2, default = 0.0)
      hasWon = models.BooleanField(default =False)
+
+     # def save(self, *args, **kwargs):
+     #    if BidAuction.objects.filter(auction = self.auction).first().bidder == self.bidder:
+     #         print('Already highest bid')
+     #    else:
+     #        super(BidAuction, self).save(*args, **kwargs)
+
 
 # class AuctionManager(models.Manager):
 #     def active(self):
