@@ -18,16 +18,18 @@ import operator
 from django.views.generic import ListView
 from django.db.models import Q
 
+# pdb.set_trace()
+
 # Create your views here.
 
-def show_all_data(request):
-    try:
-        unexpired_posts = Auction.objects.filter(banned = False, active=True)
-        auctions = unexpired_posts.order_by('-deadline')
-        # auctions = Auction.objects.order_by('-deadline')
-    except Exception:
-        return HttpResponse("Lopeta heti paikalla")
-    return render(request, "newApp/auction_list.html", {"auctions": auctions})
+# def show_all_data(request):
+#     try:
+#         unexpired_posts = Auction.objects.filter(banned = False, active=True)
+#         auctions = unexpired_posts.order_by('-deadline')
+#         # auctions = Auction.objects.order_by('-deadline')
+#     except Exception:
+#         return HttpResponse("Lopeta heti paikalla")
+#     return render(request, "newApp/auction_list.html", {"auctions": auctions})
 
 class AuctionList(ListView):
     queryset = Auction.objects.filter(banned = False, active=True).order_by('-deadline')

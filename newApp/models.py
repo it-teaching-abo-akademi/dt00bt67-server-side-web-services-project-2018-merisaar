@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from datetime import timedelta, datetime
+from django.utils import timezone
+from django.contrib import messages
 
 # Create your models here.
 class CustomUser(AbstractUser):
@@ -42,11 +44,27 @@ class BidAuction(models.Model):
      value = models.DecimalField(max_digits=5, decimal_places=2, default = 0.0)
      hasWon = models.BooleanField(default =False)
 
-     # def save(self, *args, **kwargs):
-     #    if BidAuction.objects.filter(auction = self.auction).first().bidder == self.bidder:
-     #         print('Already highest bid')
-     #    else:
-     #        super(BidAuction, self).save(*args, **kwargs)
+     def save(self, *args, **kwargs):
+        highestBid = BidAuction.objects.filter(auction = self.auction).first()
+
+        if BidAuction.objects.filter(id = self.id):
+            print("Updated bid auction")
+            super(BidAuction, self).save(*args, **kwargs)
+        else:
+            if highestBid:
+                if highestBid.bidder == self.bidder:
+                    print('Already highest bid')
+                    messages.add_message(request, messages.INFO, "Already highest bid")
+            elif self.auction.minimumPrice < self.value:
+                print("Can't bid less than highest bid")
+                messages.add_message(request, messages.INFO, "Can't bid less than highest bid")
+            elif self.auction.seller == self.bidder:
+                print("Can't bid to you own auction")
+                messages.add_message(request, messages.INFO, "Can't bid to you own auction")
+            else:
+                print('something happened')
+                super(BidAuction, self).save(*args, **kwargs)
+
 
 
 # class AuctionManager(models.Manager):

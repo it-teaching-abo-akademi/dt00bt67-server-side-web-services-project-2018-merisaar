@@ -17,6 +17,7 @@ class Command(BaseCommand):
         else:
             expiredList = Auction.objects.filter(deadline__lt = timezone.now(), active=True, banned=False)
             print(len(expiredList))
+            print()
             for expired in expiredList:
                 self.send_email(expired)
                 expired.active = False

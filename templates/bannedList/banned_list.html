@@ -1,7 +1,7 @@
 {% extends 'bannedList/base.html' %}
 
 {% block content %}
-
+{% if user.is_superuser %}
   {% for auction in object_list %}
   <h1>{{ auction.auctionTitle }}</h1>
   {% if user.is_superuser and auction.banned == False %}
@@ -22,4 +22,5 @@
       {# <a href="{% url 'edit_blog' p.id %}">Edit contact</a> #}
       <br>
   {% endfor %}
+{% endif %}
 {% endblock %}
