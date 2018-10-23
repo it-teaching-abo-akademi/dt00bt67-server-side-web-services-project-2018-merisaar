@@ -7,7 +7,7 @@
     p {margin: 1em 0}
 </style>
 <body>
-  
+{% load i18n %}
   {% if messages %}
   <ul class="messages">
     {% for message in messages %}
@@ -30,7 +30,7 @@
         <a href="{% url 'login' %}">Login</a>
         <a href="{% url 'register_user' %}">Create new user</a>
     {% endif %}
-
+    <p>Current language: {% get_current_language as LANGUAGE_CODE %} {{ LANGUAGE_CODE }}</p>
 
     <br> <br>
 

@@ -15,9 +15,10 @@
         {% endif %}
     {% endif %}
   {% endif %}
-      <p>Text: {{ auction.description }}</p>
-      <p>Minimum bid: {{ auction.minimumPrice }}</p>
-      <p>Auction closes: {{ auction.deadline }}</p>
+  {% load i18n %}
+      <p>{% trans "Text:" %} {{ auction.description }}</p>
+      <p>{% trans "Minimum bid:" %} {{ auction.minimumPrice }}</p>
+      <p>{% trans "Auction closes:" %} {{ auction.deadline }}</p>
       {# <a href="{% url 'edit_blog' p.id %}">Edit contact</a> #}
       <br>
   {% endfor %}

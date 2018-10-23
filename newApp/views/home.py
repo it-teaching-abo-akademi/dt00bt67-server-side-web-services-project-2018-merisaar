@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.db.models import Q
+from django.utils.translation import ugettext as _
 
 class AuctionList(ListView):
     queryset = Auction.objects.filter(banned = False, active=True).order_by('-deadline')

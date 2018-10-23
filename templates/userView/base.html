@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+
     <title>Contacts</title>
     {% if messages %}
     <ul class="messages">
@@ -9,6 +10,8 @@
       {% endfor %}
     </ul>
     {% endif %}
+    {% load i18n %}
+        <p>Current language: {% get_current_language as LANGUAGE_CODE %} {{ LANGUAGE_CODE }}</p>
 </head>
 <body>
 {% block content %}

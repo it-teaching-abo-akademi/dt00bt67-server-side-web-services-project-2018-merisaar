@@ -14,6 +14,7 @@ from django.views.generic import TemplateView
 from django.contrib import messages
 from django.core.mail import send_mail, send_mass_mail
 from datetime import datetime, timedelta
+from django.utils.translation import ugettext as _
 
 @method_decorator(login_required, name='dispatch')
 class BidAuctionClass(View):
@@ -92,7 +93,7 @@ class BanAuction(View):
          'Auction titled ' + auction.auctionTitle + ' has been banned.',
          'merisrnn@gmail.com', [massMailList])
 
-        messages.add_message(request, messages.INFO, "Auction banned")
+        messages.add_message(request, messages.INFO, _("Auction banned"))
         return HttpResponseRedirect(reverse("home"))
 
 @method_decorator(login_required, name='dispatch')
@@ -113,7 +114,7 @@ class EditAuction(TemplateView):
         form = EditAuctionForm(request.POST, instance = auction)
         if form.is_valid():
             form.save()
-            messages.add_message(request, messages.INFO, "Auction description updated")
+            messages.add_message(request, messages.INFO, _("Auction description updated"))
             return HttpResponseRedirect(reverse("home"))
         return HttpResponse(auction)
 
@@ -131,14 +132,8 @@ class AddAuction(TemplateView):
             userAuction.seller = request.user
             userAuction.save()
             send_mail('Auction added successfully.', 'Auction titled "' + userAuction.auctionTitle + '" added successfully. Description: "' + userAuction.description + '".', 'merisrnn@gmail.com', [userAuction.seller.email,])
-            messages.add_message(request, messages.INFO, "New auction created")
+            messages.add_message(request, messages.INFO, _("New auction created"))
             return HttpResponseRedirect(reverse("home"))
         else:
             form = CreateAuctionForm(request.POST)
             return render(request, "AuctionHandler/auctionForm.html", {"form": form})
-
-def change_language(request, lang_code):
-    translation.activate(lang_code)
-    request.session[translation.LANGUAGE_SESSION_KEY] = lang_code
-    messages.add_message(request, messages.INFO, "Language Changed to " + lang_code)
-    return HttpResponseRedirect(reverse("home"))

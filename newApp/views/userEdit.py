@@ -9,6 +9,7 @@ from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
+from django.utils.translation import ugettext as _
 
 @method_decorator(login_required, name='dispatch')
 class EditUser(TemplateView):
@@ -33,10 +34,10 @@ def changePassword(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)
-            messages.success(request, 'Your password was successfully updated!')
+            messages.success(request, _('Your password was successfully updated!'))
             return redirect('home')
         else:
-            messages.error(request, 'Please correct the error below.')
+            messages.error(request, _('Please correct the error below.'))
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'userView/change_password.html', {'form': form })
@@ -47,7 +48,7 @@ def changeEmail(request):
         user =get_user_model().objects.filter(username=request.user.username)
         user.update(email=request.POST['email'])
         update_session_auth_hash(request, user)
-        messages.success(request, 'Your email was successfully updated!')
+        messages.success(request, _('Your email was successfully updated!'))
         return redirect('user_view')
         # else:
         #     messages.error(request, 'Please correct the error below.')

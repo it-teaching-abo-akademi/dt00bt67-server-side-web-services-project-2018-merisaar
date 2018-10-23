@@ -21,7 +21,7 @@ from django.conf.urls import url
 from newApp.views.auctionHandling import *
 from newApp.views.home import *
 from newApp.views.userEdit import *
-from newApp.views.views import *
+from newApp.views.general import *
 import django.contrib.auth.views
 # from newApp.models import BlogModel
 
@@ -47,5 +47,5 @@ urlpatterns = [
     path('auction/banned/', AuctionBannedList.as_view() , name = "banned_auctions"),
     path('auction/search', SearchList.as_view() , name = "search_list_view"),
     path('auction/banned/search', SearchBannedList.as_view() , name = "search_banned_list"),
-
+    path('language/<slug:lang_code>/', change_language, name="change_language"),
     ]
