@@ -18,7 +18,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth import views as auth_views
 from django.urls import path
 from django.conf.urls import url
-from newApp.views import *
+from newApp.views.auctionHandling import *
+from newApp.views.home import *
+from newApp.views.userEdit import *
+from newApp.views.views import *
 import django.contrib.auth.views
 # from newApp.models import BlogModel
 

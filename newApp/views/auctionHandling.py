@@ -1,79 +1,19 @@
+from ..forms import *
+from ..models import Auction, BidAuction
+from ..decorators import superuser_required
 from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
-from django.contrib.auth import get_user_model
-from .forms import *
-from .models import Auction, BidAuction
-from django.contrib import messages
-from django.contrib.auth.models import User
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
-from datetime import datetime, timedelta
-from django.core.mail import send_mail
-from functools import reduce
-import operator
-from django.views.generic import ListView
-from django.db.models import Q
-from django.utils.translation import gettext as _
+from django.shortcuts import redirect
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
-from django.contrib.auth.decorators import user_passes_test
-from .decorators import superuser_required
-
-
-class AuctionList(ListView):
-    queryset = Auction.objects.filter(banned = False, active=True).order_by('-deadline')
-    template_name = 'homePage/show.html'
-
-@method_decorator([login_required, superuser_required], name='dispatch')
-class AuctionBannedList(ListView):
-    queryset = Auction.objects.filter(banned = True).order_by('-deadline')
-    template_name = 'bannedList/banned_list.html'
-
-class SearchList(ListView):
-    paginate_by = 10
-    template_name = 'homePage/show.html'
-    def get_queryset(self):
-        result = Auction.objects.filter(banned = False, active=True)
-        query = self.request.GET.get('q')
-        if query:
-            query_list = query.split()
-            result = result.filter(auctionTitle__icontains=query)
-                # reduce(operator.and_,
-                #        (Q(auctionTitle__icontains=q) for q in query_list))
-            # )
-
-        return result
-
-class SearchBannedList(ListView):
-    paginate_by = 10
-    template_name = 'bannedList/banned_list.html'
-    def get_queryset(self):
-        result = Auction.objects.filter(banned = True)
-        query = self.request.GET.get('q')
-        if query:
-            query_list = query.split()
-            result = result.filter(auctionTitle__icontains=query)
-                # reduce(operator.and_,
-                #        (Q(auctionTitle__icontains=q) for q in query_list))
-            # )
-
-        return result
-
-# def show_banned(request):
-#     if request.user.is_superuser:
-#         try:
-#             banned_posts = Auction.objects.filter(banned = True)
-#             auctions = banned_posts.order_by('-deadline')
-#         except Exception:
-#             return HttpResponse("Lopeta heti paikalla")
-#         return render(request, "homePage/show.html", {"auctions":auctions})
-#     else:
-#         unexpired_posts = Auction.objects.filter(deadline__gt=datetime.now(), banned = False)
-#         return render(request, "homePage/show.html", {"auctions": unexpired_posts})
+from django.contrib import messages
+from django.core.mail import send_mail, send_mass_mail
+from datetime import datetime, timedelta
 
 @method_decorator(login_required, name='dispatch')
 class BidAuctionClass(View):
@@ -145,9 +85,12 @@ class BanAuction(View):
          'Your auction titled ' + auction.auctionTitle + ' has been banned.',
          'merisrnn@gmail.com', [auction.seller.email,])
         list = BidAuction.objects.filter(auction = auction)
-        send_mass_mail('Action you have bidded to has been banned',
+        massMailList = []
+        for l in list:
+            massMailList.append(l.bidder.email)
+        send_mail('Action you have bidded to has been banned',
          'Auction titled ' + auction.auctionTitle + ' has been banned.',
-         'merisrnn@gmail.com', [list])
+         'merisrnn@gmail.com', [massMailList])
 
         messages.add_message(request, messages.INFO, "Auction banned")
         return HttpResponseRedirect(reverse("home"))
@@ -174,49 +117,6 @@ class EditAuction(TemplateView):
             return HttpResponseRedirect(reverse("home"))
         return HttpResponse(auction)
 
-@method_decorator(login_required, name='dispatch')
-class EditUser(TemplateView):
-    def get(self, request):
-        if request.user.is_authenticated:
-            user = request.user
-            auctions = Auction.objects.filter(seller = user)
-            return render(request, "userView/userView.html", {"user": user, "auctions": auctions})
-        else:
-            return HttpResponseRedirect(reverse("login"))
-
-    def post(self, request):
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            return HttpResponseRedirect(reverse("home"))
-        else: return HttpResponse('Error')
-
-@login_required
-def changePassword(request):
-    if request.method == 'POST':
-        form = PasswordChangeForm(data= request.POST, user= request.user)
-        if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)
-            messages.success(request, 'Your password was successfully updated!')
-            return redirect('home')
-        else:
-            messages.error(request, 'Please correct the error below.')
-    else:
-        form = PasswordChangeForm(request.user)
-    return render(request, 'userView/change_password.html', {'form': form })
-
-@login_required
-def changeEmail(request):
-    if request.method == 'POST':
-        user =get_user_model().objects.filter(username=request.user.username)
-        user.update(email=request.POST['email'])
-        update_session_auth_hash(request, user)
-        messages.success(request, 'Your email was successfully updated!')
-        return redirect('user_view')
-        # else:
-        #     messages.error(request, 'Please correct the error below.')
-    else:
-        return render(request, 'userView/base.html', {'user': request.user })
 
 @method_decorator(login_required, name='dispatch')
 class AddAuction(TemplateView):
@@ -242,20 +142,3 @@ def change_language(request, lang_code):
     request.session[translation.LANGUAGE_SESSION_KEY] = lang_code
     messages.add_message(request, messages.INFO, "Language Changed to " + lang_code)
     return HttpResponseRedirect(reverse("home"))
-
-
-class registerUser(View):
-    def get(self, request):
-        form= UserCreationForm()
-        return render(request, "registration/registration.html", {"form": form})
-
-    def post(self, request):
-        form = UserCreationForm(request.POST)
-        if(form.is_valid()):
-            form.save()
-            messages.add_message(request, messages.INFO, "New user created")
-            return HttpResponseRedirect(reverse("home"))
-        else:
-            form = UserCreationForm(request.POST)
-
-            return render(request, "registration/registration.html", {"form": form})

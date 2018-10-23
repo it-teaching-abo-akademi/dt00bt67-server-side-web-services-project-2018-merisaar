@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from datetime import timedelta, datetime
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from django.contrib import messages
 
 # Create your models here.
@@ -46,23 +47,21 @@ class BidAuction(models.Model):
 
      def save(self, *args, **kwargs):
         highestBid = BidAuction.objects.filter(auction = self.auction).first()
-
+        # request = self.request
         if BidAuction.objects.filter(id = self.id):
-            print("Updated bid auction")
             super(BidAuction, self).save(*args, **kwargs)
         else:
             if highestBid:
                 if highestBid.bidder == self.bidder:
-                    print('Already highest bid')
-                    messages.add_message(request, messages.INFO, "Already highest bid")
+                    # messages.add_message(self.request, messages.INFO, "Already highest bid")
+                    raise ValidationError("Already highest bid.")
             elif self.auction.minimumPrice < self.value:
-                print("Can't bid less than highest bid")
-                messages.add_message(request, messages.INFO, "Can't bid less than highest bid")
+                raise ValidationError("Can't bid less than highest bid.")
+                # messages.add_message(self.request, messages.INFO, "Can't bid less than highest bid")
             elif self.auction.seller == self.bidder:
-                print("Can't bid to you own auction")
-                messages.add_message(request, messages.INFO, "Can't bid to you own auction")
+                raise ValidationError("Can't bid to you own auction.")
+                # messages.add_message(self.request, messages.INFO, "Can't bid to you own auction")
             else:
-                print('something happened')
                 super(BidAuction, self).save(*args, **kwargs)
 
 

@@ -16,14 +16,16 @@
      <input type="submit" value="Change password">
  </form>
 </br>
-<h1>Auctions:</h1>
+<h1>Your auctions:</h1>
  {% for auction in auctions %}
- <h1>{{ auction.auctionTitle }}</h1>
-     <p>Description: {{ auction.description }}</p>
-     <p>Closing: {{ auction.deadline }}</p>
-     <a href="{% url 'edit_auction' auction.id %}">Edit auction</a>
+   {% if not auction.banned %}
+     <h1>{{ auction.auctionTitle }}</h1>
+         <p>Description: {{ auction.description }}</p>
+         <p>Closing: {{ auction.deadline }}</p>
+         <a href="{% url 'edit_auction' auction.id %}">Edit auction</a>
 
-     <br>
+         <br>
+     {% endif %}
  {% endfor %}
 
 {% endblock %}
