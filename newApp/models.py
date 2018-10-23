@@ -9,6 +9,8 @@ from django.contrib import messages
 # Create your models here.
 class CustomUser(AbstractUser):
     # add additional fields in here
+    # language = models.CharField(max_length=100, default='en')
+    language = models.SlugField(max_length=100, default='en')
 
     def __str__(self):
         return self.email

@@ -10,7 +10,7 @@ class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = CustomUser
-    list_display = ['email', 'username',]
+    list_display = ['email', 'username', 'language']
 
 class AuctionAdmin(admin.ModelAdmin):
     list_display = ['auctionTitle', 'minimumPrice', 'deadline', 'active', 'banned']

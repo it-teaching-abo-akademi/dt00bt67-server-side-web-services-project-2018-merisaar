@@ -10,6 +10,14 @@
      Email: <input type="text" name="email" value="{{ user.email }}">
      <input type="submit" value="Change email">
  </form>
+ <form action="{% url 'change_language' %}" method="post">
+     {% csrf_token %}
+     Language: <select id='languageList' name = 'language'>
+       <option value="en">English</option>
+       <option value="fi">Finnish</option>
+     </select>
+     <input type="submit" value="Change language">
+ </form>
 </br>
  <form action="{% url 'change_password' %}" method="post">
      {% csrf_token %}
@@ -27,5 +35,9 @@
          <br>
      {% endif %}
  {% endfor %}
-
+<script>
+    (function(){
+      document.getElementById('languageList').value="{{user.language}}"
+    })();
+</script>
 {% endblock %}
