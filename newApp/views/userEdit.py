@@ -10,16 +10,14 @@ from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.utils.translation import ugettext as _
+from django.urls import reverse
 
 @method_decorator(login_required, name='dispatch')
 class EditUser(TemplateView):
     def get(self, request):
-        if request.user.is_authenticated:
-            user = request.user
-            auctions = Auction.objects.filter(seller = user)
-            return render(request, "userView/userView.html", {"user": user, "auctions": auctions})
-        else:
-            return HttpResponseRedirect(reverse("login"))
+        user = request.user
+        auctions = Auction.objects.filter(seller = user)
+        return render(request, "userView/userView.html", {"user": user, "auctions": auctions})
 
     def post(self, request):
         form = UserCreationForm(request.POST)

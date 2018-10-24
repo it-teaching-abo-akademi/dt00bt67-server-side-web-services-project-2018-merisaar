@@ -13,6 +13,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
+import requests
 # from django.shortcuts import redirect
 # from django.shortcuts import render, get_object_or_404
 # from django.http import HttpResponse, HttpResponseRedirect
@@ -47,6 +48,20 @@ def change_language(request):
     messages.add_message(request, messages.INFO, _("Language Changed to ") + lang_code)
     return HttpResponseRedirect(reverse("user_view"))
 
+def currencyExhange(request):
+    cFrom = 'EUR'
+    cTo = request.POST['currency']
+    if(cTo):
+        # response = requests.get("http://apilayer.net/api/live?access_key=6523eac4a484bae6c9da8e1e695053ef&currencies=EUR,GBP,CAD,PLN&source=USD&format=1")
+        response = requests.get("https://free.currencyconverterapi.com/api/v6/convert?q=" + cFrom + "_" + cTo + "&compact=y")
+        data = response.json()
+        #success terms privacy timestamp source quotes
+        # usTeu = data['quotes']['USDEUR'] #USD to EURO
+        # euTus = 1/usTeu #EURO to USD
+        convertionRate = data[cFrom + '_' + cTo]['val']
+        request.session['convRate'] = convertionRate
+        return HttpResponseRedirect(reverse("home"))
+    return HttpResponseRedirect(reverse("home"))
 
 class registerUser(View):
     def get(self, request):

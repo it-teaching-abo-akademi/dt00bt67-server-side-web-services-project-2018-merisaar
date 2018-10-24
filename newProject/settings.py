@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "django_cron",
+    "currencies",
+    "mathfilters",
 
 ]
 CRON_CLASSES = [
@@ -105,9 +107,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+TEMPLATE_CONTEXT_PROCESSORS = [
+'currencies.context_processors.currencies',
+ 'currencies.context_processors.currency',
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
+
 LANGUAGES = (
     ('en', _('English')),
     ('fi', _('Finnish')),

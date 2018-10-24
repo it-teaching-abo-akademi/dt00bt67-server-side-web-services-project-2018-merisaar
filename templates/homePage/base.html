@@ -34,7 +34,11 @@
     {% endif %}
     {% load i18n %}
     <p>{% trans "Current language:" %} {% get_current_language as LANGUAGE_CODE %} {{ LANGUAGE_CODE }}</p>
-
+    <form action="{% url 'currency_convert' %}" method="POST">
+       {% csrf_token %}
+      <input type='text' name = 'currency'/>
+      <input type="submit" value="Change currency"/>
+    </form>
     <br> <br>
     <form id="searchform" action="{% url 'search_list_view' %}" method="get" accept-charset="utf-8">
      <button class="searchbutton" type="submit">

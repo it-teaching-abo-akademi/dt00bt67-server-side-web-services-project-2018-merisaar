@@ -23,6 +23,7 @@ from newApp.views.home import *
 from newApp.views.userEdit import *
 from newApp.views.general import *
 import django.contrib.auth.views
+from django.conf.urls import include
 # from newApp.models import BlogModel
 
 urlpatterns = [
@@ -48,4 +49,5 @@ urlpatterns = [
     path('auction/search', SearchList.as_view() , name = "search_list_view"),
     path('auction/banned/search', SearchBannedList.as_view() , name = "search_banned_list"),
     path('language/', change_language, name="change_language"),
+    path('currency/', currencyExhange, name="currency_convert"),
     ]

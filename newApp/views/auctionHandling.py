@@ -105,7 +105,7 @@ class EditAuction(TemplateView):
             if (auction.seller == user):
                 return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction})
             else:
-                return render(reverse("home"))
+                return HttpResponseRedirect(reverse("home"))
         else:
             return HttpResponseRedirect(reverse("login"))
 
