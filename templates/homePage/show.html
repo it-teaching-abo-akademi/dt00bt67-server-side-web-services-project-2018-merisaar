@@ -17,12 +17,15 @@
   {% endif %}
   {% load i18n %}
       <p>{% trans "Text:" %} {{ auction.description }}</p>
-      {% if request.session.convRate %}
-      {% load mathfilters %}
-      <p>{% trans "Minimum bid:" %} {{auction.minimumPrice|mul:request.session.convRate|floatformat:2}}</p>
+
+      <p>{% trans "Minimum bid:" %}
+        {% if request.session.convRate %}
+        {% load mathfilters %}
+        {{auction.minimumPrice|mul:request.session.convRate|floatformat:2}} ({{request.session.currency}})</p>
       {% else %}
-      <p>{% trans "Minimum bid:" %} {{auction.minimumPrice}} </p>
+      {{auction.minimumPrice}} (EUR)
       {% endif %}
+       </p>
       <p>{% trans "Auction closes:" %} {{ auction.deadline }}</p>
       {# <a href="{% url 'edit_blog' p.id %}">Edit contact</a> #}
       <br>

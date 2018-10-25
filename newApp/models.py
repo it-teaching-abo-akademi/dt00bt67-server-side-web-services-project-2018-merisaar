@@ -11,7 +11,6 @@ class CustomUser(AbstractUser):
     # add additional fields in here
     # language = models.CharField(max_length=100, default='en')
     language = models.SlugField(max_length=100, default='en')
-    # currencyRate = models.DecimalField(max_digits=8, decimal_places=2, default = 0.0)
 
     def __str__(self):
         return self.email
@@ -48,9 +47,7 @@ class BidAuction(models.Model):
      value = models.DecimalField(max_digits=5, decimal_places=2, default = 0.0)
      hasWon = models.BooleanField(default =False)
 
-     @classmethod
      def save(self, *args, **kwargs):
-
         highestBid = BidAuction.objects.filter(auction = self.auction).first()
         # request = self.request
         if BidAuction.objects.filter(id = self.id):

@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "django_cron",
-    "currencies",
     "mathfilters",
 
 ]
@@ -105,11 +104,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
-]
-
-TEMPLATE_CONTEXT_PROCESSORS = [
-'currencies.context_processors.currencies',
- 'currencies.context_processors.currency',
 ]
 
 # Internationalization

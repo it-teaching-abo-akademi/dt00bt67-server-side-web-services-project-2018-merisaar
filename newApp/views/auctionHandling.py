@@ -44,15 +44,14 @@ class BidAuctionClass(View):
         form = BidAuctionForm(request.POST)
         if form.is_valid():
             #What about banned posts or already highest bids?
-            highestBid = BidAuction.objects.filter(auction = auction).first()
             userBid = form.save(commit = False)
             userBid.bidder = request.user
             userBid.auction = auction
-            auction.minimumPrice = userBid.value
             #Soft deadline
             # if(userBid.deadline<datetime.now()+timedelta(minutes=5) && userBid.deadline> datetime.now()):
             #     userBid.deadline= datetime.now()+timedelta(minutes=5)
             userBid.save()
+            highestBid = BidAuction.objects.filter(auction = auction).first()
 
             if highestBid:
                 send_mail('New bid on auction',

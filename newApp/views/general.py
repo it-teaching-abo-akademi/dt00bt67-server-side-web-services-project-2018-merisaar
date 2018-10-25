@@ -51,15 +51,12 @@ def change_language(request):
 def currencyExhange(request):
     cFrom = 'EUR'
     cTo = request.POST['currency']
-    if(cTo):
-        # response = requests.get("http://apilayer.net/api/live?access_key=6523eac4a484bae6c9da8e1e695053ef&currencies=EUR,GBP,CAD,PLN&source=USD&format=1")
-        response = requests.get("https://free.currencyconverterapi.com/api/v6/convert?q=" + cFrom + "_" + cTo + "&compact=y")
-        data = response.json()
-        #success terms privacy timestamp source quotes
-        # usTeu = data['quotes']['USDEUR'] #USD to EURO
-        # euTus = 1/usTeu #EURO to USD
+    response = requests.get("https://free.currencyconverterapi.com/api/v6/convert?q=" + cFrom + "_" + cTo + "&compact=y")
+    data = response.json()
+    if(data):
         convertionRate = data[cFrom + '_' + cTo]['val']
         request.session['convRate'] = convertionRate
+        request.session['currency'] = cTo
         return HttpResponseRedirect(reverse("home"))
     return HttpResponseRedirect(reverse("home"))
 

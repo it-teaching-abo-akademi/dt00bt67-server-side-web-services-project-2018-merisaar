@@ -1,6 +1,8 @@
 from django.dispatch import receiver
 from django.contrib.auth.signals import user_logged_in
 from django.contrib.auth.signals import user_logged_out
+from django.db.models.signals import post_save
+from .models import BidAuction
 from django.utils import translation
 
 @receiver(user_logged_in)
@@ -12,3 +14,10 @@ def update_language(sender, user, request, **kwargs):
 def update_language(sender, request, **kwargs):
     translation.activate('en')
     request.session[translation.LANGUAGE_SESSION_KEY] = 'en'
+
+@receiver(post_save, sender=BidAuction)
+def update_auction_totals_for_bid(sender, instance, created, **kwargs):
+    if created:
+        auction = instance.auction
+        auction.minimumPrice = instance.value
+        auction.save()
