@@ -9,18 +9,10 @@ from django.contrib import messages
 # Create your models here.
 class CustomUser(AbstractUser):
     # add additional fields in here
-    # language = models.CharField(max_length=100, default='en')
     language = models.SlugField(max_length=100, default='en')
 
     def __str__(self):
         return self.email
-
-# class BlogModel(models.Model):
-#     title = models.CharField(max_length=150)
-#     timestamp = models.DateTimeField()
-#     body = models.TextField()
-#     def __str__(self):
-#         return self.title
 
 class Auction(models.Model):
     active = models.BooleanField(default=True)
@@ -32,40 +24,22 @@ class Auction(models.Model):
     minimumPrice = models.DecimalField(max_digits=8, decimal_places=2)
     deadline = models.DateTimeField(default=datetime.now() + timedelta(hours=72))
     banned = models.BooleanField(default=False)
+    class Meta:
+        ordering = ['deadline']
 
     def __str__(self):
          return "{} {}".format(self.auctionTitle, self.description)
 
 class BidAuction(models.Model):
-     bidder = models.ForeignKey(
+    bidder = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE
-     )
-     timestamp = models.DateTimeField(auto_now_add=True)
-     auction = models.ForeignKey(
-        Auction, on_delete=models.CASCADE, null = True, related_name = "auctionBid"
-     )
-     value = models.DecimalField(max_digits=5, decimal_places=2, default = 0.0)
-     hasWon = models.BooleanField(default =False)
-
-     def save(self, *args, **kwargs):
-        highestBid = BidAuction.objects.filter(auction = self.auction).first()
-        # request = self.request
-        if BidAuction.objects.filter(id = self.id):
-            super(BidAuction, self).save(*args, **kwargs)
-        else:
-            if highestBid:
-                if highestBid.bidder == self.bidder:
-                    # messages.add_message(self.request, messages.INFO, "Already highest bid")
-                    raise ValidationError("Already highest bid.")
-            elif self.auction.minimumPrice < self.value:
-                raise ValidationError("Can't bid less than highest bid.")
-                # messages.add_message(self.request, messages.INFO, "Can't bid less than highest bid")
-            elif self.auction.seller == self.bidder:
-                raise ValidationError("Can't bid to you own auction.")
-                # messages.add_message(self.request, messages.INFO, "Can't bid to you own auction")
-            else:
-                super(BidAuction, self).save(*args, **kwargs)
-
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+    auction = models.ForeignKey(
+    Auction, on_delete=models.CASCADE, null = True, related_name = "auctionBid"
+    )
+    value = models.DecimalField(max_digits=8, decimal_places=2, default = 0.0)
+    hasWon = models.BooleanField(default =False)
 
 
 # class AuctionManager(models.Manager):

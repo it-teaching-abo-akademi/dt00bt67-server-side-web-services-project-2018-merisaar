@@ -24,6 +24,7 @@ from newApp.views.userEdit import *
 from newApp.views.general import *
 import django.contrib.auth.views
 from django.conf.urls import include
+from newApp.restframework_rest_api import *
 # from newApp.models import BlogModel
 
 urlpatterns = [
@@ -44,4 +45,8 @@ urlpatterns = [
     path('auction/banned/search', SearchBannedList.as_view() , name = "search_banned_list"),
     path('language/', change_language, name="change_language"),
     path('currency/', currencyExhange, name="currency_convert"),
+    path('api/auctions/', auction_list),
+    path('api/auctions/<int:pk>/', AuctionDetail.as_view()),
+    path('api/auctions/<slug:searchString>', AuctionDetailSearch.as_view()),
+    path('api/auctions/<int:id>/bid', AuctionBidding.as_view()),
     ]

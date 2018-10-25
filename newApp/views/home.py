@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext as _
 
 class AuctionList(ListView):
-    queryset = Auction.objects.filter(banned = False, active=True).order_by('-deadline')
+    queryset = Auction.objects.filter(banned = False, active=True)
     template_name = 'homePage/show.html'
 
 @method_decorator([login_required, superuser_required], name='dispatch')

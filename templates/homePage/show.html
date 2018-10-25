@@ -10,7 +10,7 @@
     {% if user == auction.seller %}
         <a href="{% url 'edit_auction' auction.id %}">Edit auction</a>
     {% else %}
-        {% if auction.auctionBid.first.bidder != user %}
+        {% if not auction.auctionBid.last.bidder == user %}
             <a href="{% url 'bid_auction' auction.id %}">Bid</a>
         {% endif %}
     {% endif %}

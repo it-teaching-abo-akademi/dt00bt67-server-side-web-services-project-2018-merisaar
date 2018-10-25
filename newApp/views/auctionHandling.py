@@ -1,7 +1,6 @@
 from ..forms import *
 from ..models import Auction, BidAuction
 from ..decorators import superuser_required
-from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
@@ -22,7 +21,7 @@ class BidAuctionClass(View):
         if request.user.is_authenticated:
             user = request.user
             auction = get_object_or_404(Auction, id=id)
-            highestBid = BidAuction.objects.filter(auction = auction).first()
+            highestBid = BidAuction.objects.filter(auction = auction).last()
             #Too many nested if statements
             if not highestBid:
                 if (auction.seller == user):
@@ -44,27 +43,47 @@ class BidAuctionClass(View):
         form = BidAuctionForm(request.POST)
         if form.is_valid():
             #What about banned posts or already highest bids?
+            cd = form.cleaned_data
             userBid = form.save(commit = False)
             userBid.bidder = request.user
             userBid.auction = auction
+            value = cd['value']
             #Soft deadline
             # if(userBid.deadline<datetime.now()+timedelta(minutes=5) && userBid.deadline> datetime.now()):
             #     userBid.deadline= datetime.now()+timedelta(minutes=5)
-            userBid.save()
-            highestBid = BidAuction.objects.filter(auction = auction).first()
-
+            highestBid = BidAuction.objects.filter(auction = auction).last()
+            passed = True
             if highestBid:
-                send_mail('New bid on auction',
+                if highestBid.bidder == userBid.bidder:
+                    messages.add_message(self.request, messages.INFO, "Already highest bid")
+                    passed = False
+                    # raise ValidationError("User " + str(self.bidder) +" is already highest bidder.")
+
+            if userBid.auction.minimumPrice > value:
+                passed = False
+                # raise ValidationError("Can't bid less than highest bid.")
+                messages.add_message(self.request, messages.INFO, "Can't bid less than highest bid")
+            if userBid.auction.seller == userBid.bidder:
+                passed = False
+                # raise ValidationError("Can't bid to you own auction.")
+                messages.add_message(self.request, messages.INFO, "Can't bid to you own auction")
+            if passed:
+                userBid.save()
+                if highestBid:
+                    send_mail('New bid on auction',
+                    'New bid on your auction titled ' + auction.auctionTitle + '.',
+                    'merisrnn@gmail.com', [highestBid.bidder.email,])
+                send_mail('New bid on you auction',
                 'New bid on your auction titled ' + auction.auctionTitle + '.',
-                'merisrnn@gmail.com', [highestBid.bidder.email,])
-            send_mail('New bid on you auction',
-            'New bid on your auction titled ' + auction.auctionTitle + '.',
-             'merisrnn@gmail.com', [auction.seller.email,])
-            messages.add_message(request, messages.INFO, "Bid accepted")
-            return HttpResponseRedirect(reverse("home"))
+                 'merisrnn@gmail.com', [auction.seller.email,])
+                messages.add_message(request, messages.INFO, "Bid accepted")
+                return HttpResponseRedirect(reverse("home"))
+            else:
+                form = BidAuctionForm(request.POST)
+                return render(request, "AuctionHandler/bidAuction.html", {"user": request.user, "auction": auction})
         else:
             form = BidAuctionForm(request.POST)
-            return render(request, "AuctionHandler/auctionForm.html", {"form": form})
+            return render(request, "AuctionHandler/bidAuction.html", {"user": request.user, "auction": auction})
 
 #Gets form for banning auction and sets auction to banned
 @method_decorator([login_required, superuser_required], name='dispatch')
