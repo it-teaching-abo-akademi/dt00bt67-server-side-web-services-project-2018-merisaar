@@ -50,4 +50,5 @@ urlpatterns = [
     path('api/auctions/<int:pk>/', AuctionDetail.as_view()),
     path('api/auctions/<slug:searchString>', AuctionDetailSearch.as_view()),
     path('api/auctions/<int:id>/bid', AuctionBidding.as_view()),
+    path('emailhistory/', EmailList.as_view(), name = "emailhistory"),
     ]

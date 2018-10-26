@@ -42,21 +42,10 @@ class BidAuction(models.Model):
     hasWon = models.BooleanField(default =False)
 
 
-# class AuctionManager(models.Manager):
-#     def active(self):
-#         return super().get_queryset().filter(active=True)
-#
-#     def expired(self):
-#         return super().get_queryset().filter(active=False)
-#
-# class EmailManager(models.Manager):
-#     def emails(self):
-#         return super().get_queryset().order_by('-created_at')
-#
-# class ProcessQueue(models.Model):
-#     auction = models.ForeignKey(Auction, on_delete=None, blank=True, null=True)
-#     bid = models.ForeignKey(BidAuction, on_delete=None, blank=True, null=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#
-#     objects = models.Manager()
-#     EmailManager = EmailManager()
+class Email(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+    emailTo = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, null = True, related_name = "emailTo"
+    )
+    body = models.TextField()
+    title = models.CharField(max_length=150)

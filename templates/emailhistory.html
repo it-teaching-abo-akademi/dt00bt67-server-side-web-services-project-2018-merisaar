@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+{% for mail in object_list %}
+{% if user.is_superuser %}
+  {% load i18n %}
+  <p>{% trans "Email title:" %} {{ mail.title }}</p>
+  <p>{% trans "Email body:" %}{{mail.body}}  </p>
+  <p>{% trans "Email receiver:" %}{{mail.emailTo}}  </p>
+  <br>
+
+{% endif %}
+{% endfor %}
+{% endblock %}

@@ -1,5 +1,5 @@
 from ..forms import *
-from ..models import Auction, BidAuction
+from ..models import Auction, BidAuction, Email
 from ..decorators import superuser_required
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
@@ -71,11 +71,19 @@ class BidAuctionClass(View):
                 userBid.save()
                 if highestBid:
                     send_mail('New bid on auction',
-                    'New bid on your auction titled ' + auction.auctionTitle + '.',
+                    'New bid on auction titled ' + auction.auctionTitle + '.',
                     'merisrnn@gmail.com', [highestBid.bidder.email,])
+                    mail = Email(title = 'New bid on auction',
+                        body = 'New bid on auction you bidded on titled ' + auction.auctionTitle + '.',
+                        emailTo = highestBid.bidder)
+                    mail.save()
                 send_mail('New bid on you auction',
                 'New bid on your auction titled ' + auction.auctionTitle + '.',
-                 'merisrnn@gmail.com', [auction.seller.email,])
+                'merisrnn@gmail.com', [auction.seller.email,])
+                mail = Email(title = 'New bid on auction',
+                    body = 'New bid on your auction titled ' + auction.auctionTitle + '.',
+                    emailTo = auction.seller)
+                mail.save()
                 messages.add_message(request, messages.INFO, "Bid accepted")
                 return HttpResponseRedirect(reverse("home"))
             else:
@@ -103,6 +111,10 @@ class BanAuction(View):
         send_mail('Your auction has been banned',
          'Your auction titled ' + auction.auctionTitle + ' has been banned.',
          'merisrnn@gmail.com', [auction.seller.email,])
+        mail = Email(title = 'Your auction has been banned',
+            body = 'Your auction titled ' + auction.auctionTitle + ' has been banned.',
+            emailTo = auction.seller)
+        mail.save()
         list = BidAuction.objects.filter(auction = auction)
         massMailList = []
         for l in list:
@@ -110,7 +122,10 @@ class BanAuction(View):
         send_mail('Action you have bidded to has been banned',
          'Auction titled ' + auction.auctionTitle + ' has been banned.',
          'merisrnn@gmail.com', [massMailList])
-
+        mail = Email(title = 'Action you have bidded to has been banned',
+            body = 'Auction titled ' + auction.auctionTitle + ' has been banned.',
+            emailTo = massMailList.objects.last())
+        mail.save()
         messages.add_message(request, messages.INFO, _("Auction banned"))
         return HttpResponseRedirect(reverse("home"))
 
@@ -157,7 +172,6 @@ class AddAuction(TemplateView):
             messages.add_message(request, messages.ERROR, _("Not valid data"))
             return render(request, "AuctionHandler/auctionForm.html", {"form": form})
 
-
 def saveAuction(request):
     option = request.POST.get('option', '')
     if option == 'Yes':
@@ -168,6 +182,10 @@ def saveAuction(request):
         userAuction.save()
         messages.add_message(request, messages.INFO, _("New auction created"))
         send_mail('Auction added successfully.', 'Auction titled "' + userAuction.auctionTitle + '" added successfully. Description: "' + userAuction.description + '".', 'merisrnn@gmail.com', [userAuction.seller.email,])
+        mail = Email(title = 'Auction added successfully.',
+            body = 'Auction titled "' + userAuction.auctionTitle + '" added successfully. Description: "' + str(userAuction.description) + '".',
+            emailTo = userAuction.seller)
+        mail.save()
         # messages.add_message(request, messages.INFO, _("New blog has been saved"))
         return HttpResponseRedirect(reverse("home"))
     else:
