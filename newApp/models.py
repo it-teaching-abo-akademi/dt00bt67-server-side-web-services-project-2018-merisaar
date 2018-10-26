@@ -25,7 +25,7 @@ class Auction(models.Model):
     deadline = models.DateTimeField(default=datetime.now() + timedelta(hours=72))
     banned = models.BooleanField(default=False)
     class Meta:
-        ordering = ['deadline']
+        ordering = ['-deadline']
 
     def __str__(self):
          return "{} {}".format(self.auctionTitle, self.description)

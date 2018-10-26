@@ -67,7 +67,6 @@ class BidAuctionClass(View):
                 passed = False
                 # raise ValidationError("Can't bid to you own auction.")
                 messages.add_message(self.request, messages.INFO, "Can't bid to you own auction")
-
             if passed:
                 try:
                     with transaction.atomic():
