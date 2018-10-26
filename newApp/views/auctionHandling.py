@@ -25,14 +25,12 @@ class BidAuctionClass(View):
             #Too many nested if statements
             if not highestBid:
                 if (auction.seller == user):
-                    return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction})
+                    return HttpResponseRedirect(reverse("home"))
                 else:
                     return render(request, "AuctionHandler/bidAuction.html", {"user": user, "auction": auction})
             else:
-                if (highestBid.bidder == user):
+                if (highestBid.bidder == user) or auction.seller == user:
                     return HttpResponseRedirect(reverse("home"))
-                elif auction.seller == user:
-                    return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction})
                 else:
                     return render(request, "AuctionHandler/bidAuction.html", {"user": user, "auction": auction})
         else:
@@ -55,9 +53,9 @@ class BidAuctionClass(View):
             passed = True
             if highestBid:
                 if highestBid.bidder == userBid.bidder:
-                    messages.add_message(self.request, messages.INFO, "Already highest bid")
-                    passed = False
+                    messages.add_message(self.request, messages.ERROR, "Already highest bid")
                     # raise ValidationError("User " + str(self.bidder) +" is already highest bidder.")
+                    passed = False
 
             if userBid.auction.minimumPrice > value:
                 passed = False

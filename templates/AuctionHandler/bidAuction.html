@@ -1,6 +1,6 @@
 {% extends 'AuctionHandler/base.html' %}
 {% block content %}
-  <h1>Edit auction:</h1>
+  <h1>Bid on auction:</h1>
   <div >Title: {{auction.auctionTitle}}</div>
   <div >Description: {{auction.description}}</div>
    <form action="{% url 'bid_auction' auction.id %}" method="post">
