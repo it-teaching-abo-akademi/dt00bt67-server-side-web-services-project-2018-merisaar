@@ -13,6 +13,7 @@ from django.views.generic import TemplateView
 from django.contrib import messages
 from django.core.mail import send_mail, send_mass_mail
 from datetime import datetime, timedelta
+from django.db import IntegrityError, OperationalError, transaction
 from django.utils.translation import ugettext as _
 
 @method_decorator(login_required, name='dispatch')
@@ -49,6 +50,7 @@ class BidAuctionClass(View):
             #Soft deadline
             # if(userBid.deadline<datetime.now()+timedelta(minutes=5) && userBid.deadline> datetime.now()):
             #     userBid.deadline= datetime.now()+timedelta(minutes=5)
+
             highestBid = BidAuction.objects.filter(auction = auction).last()
             passed = True
             if highestBid:
@@ -65,25 +67,32 @@ class BidAuctionClass(View):
                 passed = False
                 # raise ValidationError("Can't bid to you own auction.")
                 messages.add_message(self.request, messages.INFO, "Can't bid to you own auction")
+
             if passed:
-                userBid.save()
-                if highestBid:
-                    send_mail('New bid on auction',
-                    'New bid on auction titled ' + auction.auctionTitle + '.',
-                    'merisrnn@gmail.com', [highestBid.bidder.email,])
-                    mail = Email(title = 'New bid on auction',
-                        body = 'New bid on auction you bidded on titled ' + auction.auctionTitle + '.',
-                        emailTo = highestBid.bidder)
-                    mail.save()
-                send_mail('New bid on you auction',
-                'New bid on your auction titled ' + auction.auctionTitle + '.',
-                'merisrnn@gmail.com', [auction.seller.email,])
-                mail = Email(title = 'New bid on auction',
-                    body = 'New bid on your auction titled ' + auction.auctionTitle + '.',
-                    emailTo = auction.seller)
-                mail.save()
-                messages.add_message(request, messages.INFO, "Bid accepted")
-                return HttpResponseRedirect(reverse("home"))
+                try:
+                    with transaction.atomic():
+                        userBid.save()
+                        if highestBid:
+                            send_mail('New bid on auction',
+                            'New bid on auction titled ' + auction.auctionTitle + '.',
+                            'merisrnn@gmail.com', [highestBid.bidder.email,])
+                            mail = Email(title = 'New bid on auction',
+                            body = 'New bid on auction you bidded on titled ' + auction.auctionTitle + '.',
+                            emailTo = highestBid.bidder)
+                            mail.save()
+                        send_mail('New bid on you auction',
+                        'New bid on your auction titled ' + auction.auctionTitle + '.',
+                        'merisrnn@gmail.com', [auction.seller.email,])
+                        mail = Email(title = 'New bid on auction',
+                        body = 'New bid on your auction titled ' + auction.auctionTitle + '.',
+                        emailTo = auction.seller)
+                        mail.save()
+                        messages.add_message(request, messages.INFO, "Bid accepted")
+                        return HttpResponseRedirect(reverse("home"))
+                except OperationalError:
+                    messages.add_message(request, messages.ERROR, "Database locked. Try again.")
+                    form = BidAuctionForm(request.POST)
+                    return render(request, "AuctionHandler/bidAuction.html", {"user": request.user, "auction": auction})
             else:
                 form = BidAuctionForm(request.POST)
                 return render(request, "AuctionHandler/bidAuction.html", {"user": request.user, "auction": auction})
