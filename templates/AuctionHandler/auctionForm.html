@@ -10,6 +10,6 @@
 <form action="{% url 'add_auction' %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" onclick="return confirm('Are you sure?')" value="Submit">
+    <input type="submit" value="Submit">
 </form>
 {% endblock %}

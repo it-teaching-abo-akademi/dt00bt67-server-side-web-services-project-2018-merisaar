@@ -146,12 +146,30 @@ class AddAuction(TemplateView):
     def post(self, request):
         form = CreateAuctionForm(request.POST)
         if(form.is_valid()):
-            userAuction = form.save(commit = False)
-            userAuction.seller = request.user
-            userAuction.save()
-            send_mail('Auction added successfully.', 'Auction titled "' + userAuction.auctionTitle + '" added successfully. Description: "' + userAuction.description + '".', 'merisrnn@gmail.com', [userAuction.seller.email,])
-            messages.add_message(request, messages.INFO, _("New auction created"))
-            return HttpResponseRedirect(reverse("home"))
+            cd = form.cleaned_data
+            title = cd['auctionTitle']
+            description = cd['description']
+            minPrice = cd['minimumPrice']
+            form = ConfAuctionForm({"title": title, "description": description, "minPrice": minPrice})
+            return render(request, 'AuctionHandler/confirmation.html', {'form': form})
+
         else:
-            form = CreateAuctionForm(request.POST)
+            messages.add_message(request, messages.ERROR, _("Not valid data"))
             return render(request, "AuctionHandler/auctionForm.html", {"form": form})
+
+
+def saveAuction(request):
+    option = request.POST.get('option', '')
+    if option == 'Yes':
+        title = request.POST.get('title', '')
+        descr = request.POST.get('descr', '')
+        minPrice = request.POST.get('minPrice', '')
+        userAuction = Auction(auctionTitle = title, description= descr, minimumPrice=minPrice, seller = request.user)
+        userAuction.save()
+        messages.add_message(request, messages.INFO, _("New auction created"))
+        send_mail('Auction added successfully.', 'Auction titled "' + userAuction.auctionTitle + '" added successfully. Description: "' + userAuction.description + '".', 'merisrnn@gmail.com', [userAuction.seller.email,])
+        # messages.add_message(request, messages.INFO, _("New blog has been saved"))
+        return HttpResponseRedirect(reverse("home"))
+    else:
+        messages.add_message(request, messages.INFO, _("Auction cancelled"))
+        return HttpResponseRedirect(reverse("home"))

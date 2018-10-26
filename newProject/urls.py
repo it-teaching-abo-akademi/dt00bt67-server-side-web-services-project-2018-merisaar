@@ -37,6 +37,7 @@ urlpatterns = [
     path('user/password/', changePassword, name = "change_password"),
     path('user/email/', changeEmail, name = "change_email"),
     path('auction', AddAuction.as_view() , name = "add_auction"),
+    path('auction/confirm', saveAuction, name = "save_auction"),
     path('auction/bid/<int:id>/', BidAuctionClass.as_view() , name = "bid_auction"),
     path('auction/edit/<int:id>/', EditAuction.as_view() , name = "edit_auction"),
     path('auction/ban/<int:id>/', BanAuction.as_view() , name = "ban_auction"),

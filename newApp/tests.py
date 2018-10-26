@@ -13,30 +13,30 @@ class SimpleTest(TestCase):
     fixtures = ['db_data.json',]
 
     def setUp(self):
-        self.user = User.objects.create_user(
+        self.user = get_user_model().objects.create_user(
             username='abc', email='abc@abo.fi', password='abc')
 
-    def test_archive(self):
+    def test_home(self):
         response = self.client.get(reverse('home'))
         self.failUnlessEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "archive.html")
+        self.assertTemplateUsed(response, "homePage/show.html")
 
     def test_redirectMe(self):
         resp = self.client.get(reverse("to_home"))
         self.assertRedirects(resp,reverse("home"))
 
     def test_post(self):
-        pre_count = Blog.objects.count()
-        print("Before creating a blog in a test:", pre_count)
+        pre_count = Auction.objects.count()
+        print("Before creating an auction in a test:", pre_count)
 
         # Try to add a new blog without authenticating user
-        response = self.client.post(reverse("add_blog"), {'title': 'my title', 'body': 'my body',})
+        response = self.client.post(reverse("add_blog"), {'auctioTitle': 'my title', 'description': 'my body',})
         self.assertEqual(response.status_code, 302)
         self.assertTrue(reverse("login") in response.url)
 
         # Try to add a new blog after authenticating user
         self.client.login(username="abc", password="abc")
-        response = self.client.post(reverse("add_blog"), {'title': 'my title', 'body': 'my body',})
+        response = self.client.post(reverse("add_blog"), {'auctionTitle': 'my title', 'description': 'my body',})
         self.assertEqual(response.status_code, 200)
 
         # Post back Yes to the confirmation form

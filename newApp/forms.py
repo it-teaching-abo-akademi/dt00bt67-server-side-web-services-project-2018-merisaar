@@ -23,6 +23,14 @@ class CreateAuctionForm(forms.ModelForm):
             model = Auction
             fields = ['auctionTitle', 'description', 'minimumPrice']
 
+
+class ConfAuctionForm(forms.Form):
+    CHOICES = [(x, x) for x in ("Yes", "No")]
+    option = forms.ChoiceField(choices=CHOICES)
+    title = forms.CharField(widget=forms.HiddenInput())
+    description = forms.CharField(widget=forms.HiddenInput())
+    minPrice = forms.DecimalField(widget=forms.HiddenInput())
+
 class EditAuctionForm(forms.ModelForm):
         class Meta:
             model = Auction
@@ -32,20 +40,6 @@ class BidAuctionForm(forms.ModelForm):
         class Meta:
             model = BidAuction
             fields = ['value']
-
-        # def clean_value(self):
-        #     value_passed = self.cleaned_data.get("value")
-        #     if value_passed>0:
-        #         # raise forms.ValidationError("Bid has to be larger than minimum bid " + str(auction.minimumPrice) + ".")
-        #         raise forms.ValidationError("Bid has to be larger than 0.")
-        #     return value_passed
-
-        # def save(self, excerpt=None, force_insert=False, force_update=False, commit=True):
-        #     if BidAuction.objects.first().bidder == self.bidder:
-        #         print('Already highest bid')
-        # else:
-        #     super(BidAuction, self).save(*args, **kwargs)
-
 
 
 class CopyOfForm(forms.Form):
