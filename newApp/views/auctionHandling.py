@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 from django.db import IntegrityError, OperationalError, transaction
 from django.utils.translation import ugettext as _
 
+
 @method_decorator(login_required, name='dispatch')
 class BidAuctionClass(View):
     def get(self, request, id):
@@ -42,7 +43,6 @@ class BidAuctionClass(View):
         auction = Auction.objects.get(id=id)
         form = BidAuctionForm(request.POST)
         if form.is_valid():
-            #What about banned posts or already highest bids?
             cd = form.cleaned_data
             userBid = form.save(commit = False)
             userBid.bidder = request.user
@@ -55,21 +55,17 @@ class BidAuctionClass(View):
             if highestBid:
                 if highestBid.bidder == userBid.bidder:
                     messages.add_message(self.request, messages.ERROR, "Already highest bid")
-                    # raise ValidationError("User " + str(self.bidder) +" is already highest bidder.")
                     passed = False
 
             if userBid.auction.minimumPrice > value:
                 passed = False
-                # raise ValidationError("Can't bid less than highest bid.")
                 messages.add_message(self.request, messages.INFO, "Can't bid less than highest bid")
             if userBid.auction.seller == userBid.bidder:
                 passed = False
-                # raise ValidationError("Can't bid to you own auction.")
                 messages.add_message(self.request, messages.INFO, "Can't bid to you own auction")
             if 'description'in request.session:
                 if not request.session.get('description') == userBid.auction.description:
                     passed = False
-                    # raise ValidationError("Can't bid to you own auction.")
                     messages.add_message(self.request, messages.INFO, "Description has changed")
 
             if passed:
