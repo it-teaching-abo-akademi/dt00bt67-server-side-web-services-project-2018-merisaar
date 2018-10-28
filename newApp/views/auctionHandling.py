@@ -24,6 +24,7 @@ class BidAuctionClass(View):
             auction = get_object_or_404(Auction, id=id)
             highestBid = BidAuction.objects.filter(auction = auction).last()
             #Too many nested if statements
+            request.session['description'] = auction.description
             if not highestBid:
                 if (auction.seller == user):
                     return HttpResponseRedirect(reverse("home"))
@@ -47,12 +48,10 @@ class BidAuctionClass(View):
             userBid.bidder = request.user
             userBid.auction = auction
             value = cd['value']
-            #Soft deadline
-            # if(userBid.deadline<datetime.now()+timedelta(minutes=5) && userBid.deadline> datetime.now()):
-            #     userBid.deadline= datetime.now()+timedelta(minutes=5)
 
             highestBid = BidAuction.objects.filter(auction = auction).last()
             passed = True
+            saved = False
             if highestBid:
                 if highestBid.bidder == userBid.bidder:
                     messages.add_message(self.request, messages.ERROR, "Already highest bid")
@@ -67,31 +66,39 @@ class BidAuctionClass(View):
                 passed = False
                 # raise ValidationError("Can't bid to you own auction.")
                 messages.add_message(self.request, messages.INFO, "Can't bid to you own auction")
+            if 'description'in request.session:
+                if not request.session.get('description') == userBid.auction.description:
+                    passed = False
+                    # raise ValidationError("Can't bid to you own auction.")
+                    messages.add_message(self.request, messages.INFO, "Description has changed")
+
             if passed:
                 try:
                     with transaction.atomic():
                         userBid.save()
-                        if highestBid:
-                            send_mail('New bid on auction',
-                            'New bid on auction titled ' + auction.auctionTitle + '.',
-                            'merisrnn@gmail.com', [highestBid.bidder.email,])
-                            mail = Email(title = 'New bid on auction',
-                            body = 'New bid on auction you bidded on titled ' + auction.auctionTitle + '.',
-                            emailTo = highestBid.bidder)
-                            mail.save()
-                        send_mail('New bid on you auction',
-                        'New bid on your auction titled ' + auction.auctionTitle + '.',
-                        'merisrnn@gmail.com', [auction.seller.email,])
-                        mail = Email(title = 'New bid on auction',
-                        body = 'New bid on your auction titled ' + auction.auctionTitle + '.',
-                        emailTo = auction.seller)
-                        mail.save()
-                        messages.add_message(request, messages.INFO, "Bid accepted")
-                        return HttpResponseRedirect(reverse("home"))
+                        saved = True
                 except OperationalError:
                     messages.add_message(request, messages.ERROR, "Database locked. Try again.")
                     form = BidAuctionForm(request.POST)
                     return render(request, "AuctionHandler/bidAuction.html", {"user": request.user, "auction": auction})
+            if saved:
+                if highestBid:
+                    send_mail('New bid on auction',
+                    'New bid on auction titled ' + auction.auctionTitle + '.',
+                    'merisrnn@gmail.com', [highestBid.bidder.email,])
+                    mail = Email(title = 'New bid on auction',
+                    body = 'New bid on auction you bidded on titled ' + auction.auctionTitle + '.',
+                    emailTo = highestBid.bidder)
+                    mail.save()
+                    send_mail('New bid on you auction',
+                    'New bid on your auction titled ' + auction.auctionTitle + '.',
+                    'merisrnn@gmail.com', [auction.seller.email,])
+                mail = Email(title = 'New bid on auction',
+                body = 'New bid on your auction titled ' + auction.auctionTitle + '.',
+                emailTo = auction.seller)
+                mail.save()
+                messages.add_message(request, messages.INFO, "Bid accepted")
+                return HttpResponseRedirect(reverse("home"))
             else:
                 form = BidAuctionForm(request.POST)
                 return render(request, "AuctionHandler/bidAuction.html", {"user": request.user, "auction": auction})
@@ -112,28 +119,38 @@ class BanAuction(View):
         auction = Auction.objects.get(id=id)
         auction.banned = True
         auction.active = False
-        auction.save()
-        #Send email to highestBidders and auction creator
-        send_mail('Your auction has been banned',
-         'Your auction titled ' + auction.auctionTitle + ' has been banned.',
-         'merisrnn@gmail.com', [auction.seller.email,])
-        mail = Email(title = 'Your auction has been banned',
-            body = 'Your auction titled ' + auction.auctionTitle + ' has been banned.',
-            emailTo = auction.seller)
-        mail.save()
-        list = BidAuction.objects.filter(auction = auction)
-        massMailList = []
-        for l in list:
-            massMailList.append(l.bidder.email)
-        send_mail('Action you have bidded to has been banned',
-         'Auction titled ' + auction.auctionTitle + ' has been banned.',
-         'merisrnn@gmail.com', [massMailList])
-        mail = Email(title = 'Action you have bidded to has been banned',
-            body = 'Auction titled ' + auction.auctionTitle + ' has been banned.',
-            emailTo = massMailList.objects.last())
-        mail.save()
-        messages.add_message(request, messages.INFO, _("Auction banned"))
-        return HttpResponseRedirect(reverse("home"))
+        saved = False
+        try:
+            with transaction.atomic():
+                auction.save()
+                saved = True
+        except OperationalError:
+            messages.add_message(request, messages.ERROR, "Database locked. Try again.")
+            return render(request, "AuctionHandler/banAuction.html", {"auction": auction})
+
+        if saved:
+            #Send email to highestBidders and auction creator
+            send_mail('Your auction has been banned',
+             'Your auction titled ' + auction.auctionTitle + ' has been banned.',
+             'merisrnn@gmail.com', [auction.seller.email,])
+            mail = Email(title = 'Your auction has been banned',
+                body = 'Your auction titled ' + auction.auctionTitle + ' has been banned.',
+                emailTo = auction.seller)
+            mail.save()
+            list = BidAuction.objects.filter(auction = auction)
+            if len(list)>0:
+                massMailList = []
+                for l in list:
+                    massMailList.append(l.bidder.email)
+                send_mail('Action you have bidded to has been banned',
+                 'Auction titled ' + auction.auctionTitle + ' has been banned.',
+                 'merisrnn@gmail.com', [massMailList])
+                mail = Email(title = 'Action you have bidded to has been banned',
+                    body = 'Auction titled ' + auction.auctionTitle + ' has been banned.',
+                    emailTo = massMailList.objects.last())
+                mail.save()
+            messages.add_message(request, messages.INFO, _("Auction banned"))
+            return HttpResponseRedirect(reverse("home"))
 
 @method_decorator(login_required, name='dispatch')
 class EditAuction(TemplateView):
@@ -152,9 +169,17 @@ class EditAuction(TemplateView):
         auction = Auction.objects.get(id=id)
         form = EditAuctionForm(request.POST, instance = auction)
         if form.is_valid():
-            form.save()
-            messages.add_message(request, messages.INFO, _("Auction description updated"))
-            return HttpResponseRedirect(reverse("home"))
+            saved = False
+            try:
+                with transaction.atomic():
+                    form.save()
+                    saved = True
+            except OperationalError:
+                messages.add_message(request, messages.ERROR, "Database locked. Try again.")
+                return render(request, "AuctionHandler/editAuction.html", {"user": user, "auction": auction})
+            if saved:
+                messages.add_message(request, messages.INFO, _("Auction description updated"))
+                return HttpResponseRedirect(reverse("home"))
         return HttpResponse(auction)
 
 

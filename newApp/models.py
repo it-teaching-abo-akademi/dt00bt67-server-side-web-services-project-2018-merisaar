@@ -5,12 +5,15 @@ from datetime import timedelta, datetime
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.contrib import messages
+from django.conf import settings
 
 # Create your models here.
 class CustomUser(AbstractUser):
     # add additional fields in here
-    language = models.SlugField(max_length=100, default='en')
-
+    # language = models.SlugField(max_length=100, default='en')
+    language = models.CharField(max_length=10,
+                                    choices=settings.LANGUAGES,
+                                    default=settings.LANGUAGE_CODE)
     def __str__(self):
         return self.email
 

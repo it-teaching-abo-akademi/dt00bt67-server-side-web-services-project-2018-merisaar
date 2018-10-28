@@ -11,7 +11,7 @@ def update_language(sender, user, request, **kwargs):
     request.session[translation.LANGUAGE_SESSION_KEY] = request.user.language
 
 @receiver(user_logged_out)
-def update_language(sender, request, **kwargs):
+def update_language_logged_out(sender, request, **kwargs):
     translation.activate('en')
     request.session[translation.LANGUAGE_SESSION_KEY] = 'en'
 
