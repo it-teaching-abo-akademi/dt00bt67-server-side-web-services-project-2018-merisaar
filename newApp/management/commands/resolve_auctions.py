@@ -2,31 +2,21 @@ from django.core.management.base import BaseCommand, CommandError
 from newApp.models import *
 from django.utils import timezone
 from django.core.mail import send_mail
-from django_cron import CronJobBase, Schedule
 
-class Command(CronJobBase):
+class Command(BaseCommand):
     help = 'Runs through email queue and sends emails'
-    RUN_EVERY_MINS = 30 # every half hours
-    schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
-    code = 'newApp.resolve_auctions'    # a unique code
-    def add_arguments(self, parser):
-        parser.add_argument('--id')
 
     def handle(self, *args, **options):
-        if options['id']:
-            self.send_email(email)
-            email.delete()
-        else:
-            expiredList = Auction.objects.filter(deadline__lt = timezone.now(), active=True, banned=False)
-            print(len(expiredList))
-            print()
-            for expired in expiredList:
-                self.send_email(expired)
-                expired.active = False
-                expired.save()
+        expiredList = Auction.objects.filter(deadline__lt = timezone.now(), active=True, banned=False)
+        print(len(expiredList))
+        print()
+        for expired in expiredList:
+            self.send_email(expired)
+            expired.active = False
+            expired.save()
 
     def send_email(self, expired):
-        # try:
+        try:
             bids = BidAuction.objects.filter(auction = expired)
             highestBid = bids.first()
             if highestBid:
@@ -52,10 +42,5 @@ class Command(CronJobBase):
                 send_mail('Auction has expired',
                 'Your auction ' + expired.auctionTitle + ' has expired. There were no bids.',
                 'merisrnn@gmail.com', [expired.seller,])
-        # except:
-            # raise CommandError("Email could not send for reason XYZ")
-
-    # def update_bid_row(self, bid):
-    #     bid.email_sent = True
-    #     bid.email_sent_time = timezone.now()
-    #     bid.save()
+        except:
+            raise CommandError("Resolve failed")
